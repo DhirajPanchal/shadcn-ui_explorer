@@ -35,6 +35,10 @@ export interface GradeChangeRecord {
   grade_default_date?: string;
   grade_grp_default_reason_desc?: string;
   status?: string;
+  grade_region?: string;
+  grade_method?: string;
+  grade_resolution_date?: string;
+  grade_grp_status_new_desc: string;
 }
 
 export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
@@ -92,6 +96,27 @@ export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
   },
 
   {
+    accessorKey: "grade_region",
+    header: "Region",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("grade_region")}</div>
+    ),
+  },
+  {
+    accessorKey: "grade_site",
+    header: "Site",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("grade_site")}</div>
+    ),
+  },
+  {
+    accessorKey: "grade_method",
+    header: "Method",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("grade_method")}</div>
+    ),
+  },
+  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
@@ -125,11 +150,28 @@ export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
   },
 
   {
+    accessorKey: "grade_resolution_date",
+    header: "Resolution Date",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("grade_resolution_date")}</div>
+    ),
+  },
+
+  {
     accessorKey: "grade_grp_default_reason_desc",
     header: "Default Reason",
     cell: ({ row }) => (
       <div className="capitalize">
         {row.getValue("grade_grp_default_reason_desc")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "grade_grp_status_new_desc",
+    header: "Resolution Reason",
+    cell: ({ row }) => (
+      <div className="capitalize">
+        {row.getValue("grade_grp_status_new_desc")}
       </div>
     ),
   },
