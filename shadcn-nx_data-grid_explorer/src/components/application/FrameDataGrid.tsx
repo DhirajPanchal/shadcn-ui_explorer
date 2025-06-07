@@ -55,6 +55,7 @@ interface FrameDataGridProps<TData, TValue> {
   onPageChange: (pageIndex: number) => void;
   onPageLimitChange: (pageSize: number) => void;
   onRefresh?: () => void;
+  gridHeader?: React.ReactNode;
 }
 
 export function FrameDataGrid<TData, TValue>({
@@ -66,6 +67,7 @@ export function FrameDataGrid<TData, TValue>({
   onPageChange,
   onPageLimitChange,
   onRefresh,
+  gridHeader,
 }: FrameDataGridProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -100,13 +102,15 @@ export function FrameDataGrid<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between py-4 gap-2">
-        <Input placeholder="Filter across columns" className="max-w-sm" />
+      <div className="flex items-center justify-between mb-2 gap-4">
+        {/* Left: Input */}
+        {gridHeader}
 
+        {/* Right: Page size, refresh, settings */}
         <div className="flex items-center gap-2">
           <Select
             value={pageLimit.toString()}
-            onValueChange={(val) => onPageSizeChangeHandler(Number(val))}
+            onValueChange={(val) => onPageLimitChange(Number(val))}
           >
             <SelectTrigger className="w-[180px] h-8 text-xs">
               <SelectValue />
@@ -120,7 +124,7 @@ export function FrameDataGrid<TData, TValue>({
             </SelectContent>
           </Select>
 
-          <Button variant="outline" size="icon" onClick={() => onRefresh?.()}>
+          <Button variant="outline" size="icon" onClick={onRefresh}>
             <RefreshCw className="h-4 w-4" />
           </Button>
 
@@ -133,19 +137,17 @@ export function FrameDataGrid<TData, TValue>({
             <DropdownMenuContent align="end">
               {table
                 .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => (
+                .filter((col) => col.getCanHide())
+                .map((col) => (
                   <DropdownMenuCheckboxItem
-                    key={column.id}
+                    key={col.id}
                     className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
+                    checked={col.getIsVisible()}
+                    onCheckedChange={(value) => col.toggleVisibility(!!value)}
                   >
-                    {typeof column.columnDef.header === "string"
-                      ? column.columnDef.header
-                      : column.id}
+                    {typeof col.columnDef.header === "string"
+                      ? col.columnDef.header
+                      : col.id}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>

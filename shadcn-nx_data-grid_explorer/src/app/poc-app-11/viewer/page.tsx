@@ -17,6 +17,7 @@ import {
   GRID_ACTION_PAGE_SIZE_CHANGE,
 } from "@/components/application/constants";
 import { loadGradeRecords } from "@/components/application/external-interface";
+import { GridHeader } from "@/components/application/GridHeader";
 
 export default function Page() {
   const [gridPayload, setGridPayload] = useState<DataGridRequest>(
@@ -66,19 +67,21 @@ export default function Page() {
         </div>
       </div>
 
-      <FrameDataGrid
-        columns={MDL_VIEWER_COLUMNS}
-        data={gridData.data}
-        pageSkip={gridData.skip}
-        pageLimit={gridData.limit}
-        total={gridData.total}
-        onPageChange={(newPage) =>
-          processGridPayload(GRID_ACTION_PAGE_NUMBER_CHANGE, newPage)
-        }
-        onPageLimitChange={(newSize) =>
-          processGridPayload(GRID_ACTION_PAGE_SIZE_CHANGE, newSize)
-        }
-      />
+<FrameDataGrid
+  columns={MDL_VIEWER_COLUMNS}
+  data={gridData.data}
+  pageSkip={gridData.skip}
+  pageLimit={gridData.limit}
+  total={gridData.total}
+  onPageChange={(newPage) =>
+    processGridPayload(GRID_ACTION_PAGE_NUMBER_CHANGE, newPage)
+  }
+  onPageLimitChange={(newSize) =>
+    processGridPayload(GRID_ACTION_PAGE_SIZE_CHANGE, newSize)
+  }
+  onRefresh={loadGrid}
+  gridHeader={<GridHeader />}
+/>
     </section>
   );
 }
