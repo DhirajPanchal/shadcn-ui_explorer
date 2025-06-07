@@ -1,47 +1,11 @@
-import axios from "axios";
-import { GradeChangeRecord } from "./mdl-viewer-metadata";
-import {
-  DataGridRequest,
-  DataGridResponse,
-} from "@/components/frame-datagrid/model";
-
-// export interface FetchParams {
-//   index: number;
-//   size: number;
-//   filter?: any[];
-//   sort?: any[];
-// }
-
-// export async function fetchGradeRecords(params: FetchParams) {
-//     const response = await axios.post("/api/records/garde", params);
-//     return response.data; // { index, size, total, data }
-// }
-
-export async function fetchGradeRecords({
-  index,
-  size,
-}: DataGridRequest): Promise<{
-  index: number;
-  size: number;
-  total: number;
-  data: typeof dummyData;
-}> {
-  const start = (index - 1) * size;
-  const end = start + size;
-
-  return {
-    index,
-    size,
-    total: dummyData.length,
-    data: dummyData.slice(start, end),
-  };
-}
+import { GradeChangeRecord } from "./model";
 
 export const dummyData: GradeChangeRecord[] = [
   {
     id: 1,
     grade_customer_id: "C1",
-    grade_customer_name: "Customer 1",
+    grade_customer_name:
+      "Customer 1 Customer 1 Customer 1 Customer 1 Customer 1 Customer 1 Customer 1 ",
     grade_gedu_legal_name: "Customer 1001",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "",
@@ -49,7 +13,6 @@ export const dummyData: GradeChangeRecord[] = [
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 2,
@@ -58,11 +21,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1002",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "A",
-    status: "REVIEWING",
+    status: "PENDING_REVIEW",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 3,
@@ -71,11 +33,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1003",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: undefined,
-    status: "WAITING_FOR_APPROVAL",
+    status: "PENDING_APPROVAL",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 4,
@@ -88,7 +49,6 @@ export const dummyData: GradeChangeRecord[] = [
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 5,
@@ -97,11 +57,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1005",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "C",
-    status: "REVIEWING",
+    status: "ASD",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
 
   {
@@ -115,7 +74,6 @@ export const dummyData: GradeChangeRecord[] = [
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 7,
@@ -124,11 +82,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1007",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "A",
-    status: "REVIEWING",
+    status: "PENDING_REVIEW",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 8,
@@ -137,11 +94,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1008",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: undefined,
-    status: "WAITING_FOR_APPROVAL",
+    status: "PENDING_APPROVAL",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 9,
@@ -154,7 +110,6 @@ export const dummyData: GradeChangeRecord[] = [
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 10,
@@ -163,11 +118,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1010",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "C",
-    status: "REVIEWING",
+    status: "PENDING_REVIEW",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
 
   {
@@ -181,7 +135,6 @@ export const dummyData: GradeChangeRecord[] = [
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 12,
@@ -190,11 +143,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1012",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "A",
-    status: "REVIEWING",
+    status: "PENDING_REVIEW",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 13,
@@ -203,11 +155,10 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1013",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: undefined,
-    status: "WAITING_FOR_APPROVAL",
+    status: "PENDING_APPROVAL",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 14,
@@ -220,7 +171,6 @@ export const dummyData: GradeChangeRecord[] = [
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
   {
     id: 15,
@@ -229,10 +179,9 @@ export const dummyData: GradeChangeRecord[] = [
     grade_gedu_legal_name: "Customer 1015",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "C",
-    status: "REVIEWING",
+    status: "PENDING_REVIEW",
     grade_region: "EU",
     grade_method: "Method 1",
     grade_resolution_date: "6/6/2025",
-    grade_grp_status_new_desc: "Asd",
   },
 ];

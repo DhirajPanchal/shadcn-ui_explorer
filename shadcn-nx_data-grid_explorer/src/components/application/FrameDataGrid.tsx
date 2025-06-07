@@ -49,22 +49,22 @@ import {
 interface FrameDataGridProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  pageIndex: number;
-  pageSize: number;
+  pageSkip: number;
+  pageLimit: number;
   total: number;
   onPageChange: (pageIndex: number) => void;
-  onPageSizeChange: (pageSize: number) => void;
+  onPageLimitChange: (pageSize: number) => void;
   onRefresh?: () => void;
 }
 
 export function FrameDataGrid<TData, TValue>({
   columns,
   data,
-  pageIndex,
-  pageSize,
+  pageSkip,
+  pageLimit,
   total,
   onPageChange,
-  onPageSizeChange,
+  onPageLimitChange,
   onRefresh,
 }: FrameDataGridProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -94,6 +94,10 @@ export function FrameDataGrid<TData, TValue>({
     },
   });
 
+  const onPageSizeChangeHandler = (size: number) => {
+    onPageLimitChange(size);
+  };
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between py-4 gap-2">
@@ -101,14 +105,14 @@ export function FrameDataGrid<TData, TValue>({
 
         <div className="flex items-center gap-2">
           <Select
-            value={pageSize.toString()}
-            onValueChange={(val) => onPageSizeChange(Number(val))}
+            value={pageLimit.toString()}
+            onValueChange={(val) => onPageSizeChangeHandler(Number(val))}
           >
             <SelectTrigger className="w-[180px] h-8 text-xs">
-              <SelectValue placeholder="Page size" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[10, 20, 30].map((size) => (
+              {[5, 10, 20, 30].map((size) => (
                 <SelectItem key={size} value={size.toString()}>
                   {size} records per page
                 </SelectItem>
@@ -208,10 +212,9 @@ export function FrameDataGrid<TData, TValue>({
         </div>
         <FrameDataGridPagination
           total={total}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
+          pageSkip={pageSkip}
+          pageLimit={pageLimit}
           onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
         />
       </div>
     </div>

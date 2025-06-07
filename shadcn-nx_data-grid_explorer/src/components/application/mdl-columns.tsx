@@ -23,25 +23,39 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { GradeChangeRecord } from "./model";
+import { format } from "date-fns";
 
-//
-// GradeChangeRecord
-//
-export interface GradeChangeRecord {
-  id: number;
-  grade_customer_id?: string;
-  grade_customer_name?: string;
-  grade_gedu_legal_name?: string;
-  grade_default_date?: string;
-  grade_grp_default_reason_desc?: string;
-  status?: string;
-  grade_region?: string;
-  grade_method?: string;
-  grade_resolution_date?: string;
-  grade_grp_status_new_desc: string;
-}
+const frameCellRenderer = (value: string) => {
+  const strValue = value !== undefined && value !== null ? value : "";
+  return (
+    <div
+      className="max-w-[200px] truncate whitespace-nowrap overflow-hidden capitalize"
+      title={String(strValue)}
+    >
+      {String(strValue)}
+    </div>
+  );
+};
 
-export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
+const frameDateCellRenderer = (value: string) => {
+  if (!value) {
+    return <div className="test-gray-400">-</div>;
+  }
+  const date = new Date(value);
+  const isValid = !isNaN(date.getTime());
+  return (
+    <div>
+      {isValid ? (
+        format(date, "MM/dd/yyyy")
+      ) : (
+        <span className="text-red-400">INVALID</span>
+      )}
+    </div>
+  );
+};
+
+export const MDL_VIEWER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   {
     id: "select",
     header: () => (
@@ -72,49 +86,35 @@ export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
         Customer ID
       </div>
     ),
-    cell: ({ row }) => (
-      <div className="capitalize border-l border-muted-foreground/20 pl-4">
-        {row.getValue("grade_customer_id")}
-      </div>
-    ),
+    cell: ({ row }) => frameCellRenderer(row.getValue("grade_customer_id")),
   },
 
   {
     accessorKey: "grade_customer_name",
     header: "Customer Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_customer_name")}</div>
-    ),
+    cell: ({ row }) => frameCellRenderer(row.getValue("grade_customer_name")),
   },
 
   {
     accessorKey: "grade_gedu_legal_name",
     header: "Customer Legal Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_gedu_legal_name")}</div>
-    ),
+    cell: ({ row }) => frameCellRenderer(row.getValue("grade_gedu_legal_name")),
   },
 
   {
     accessorKey: "grade_region",
     header: "Region",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_region")}</div>
-    ),
+    cell: ({ row }) => frameCellRenderer(row.getValue("grade_region")),
   },
   {
     accessorKey: "grade_site",
     header: "Site",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_site")}</div>
-    ),
+    cell: ({ row }) => frameCellRenderer(row.getValue("grade_site")),
   },
   {
     accessorKey: "grade_method",
     header: "Method",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_method")}</div>
-    ),
+    cell: ({ row }) => frameCellRenderer(row.getValue("grade_method")),
   },
   {
     accessorKey: "status",
@@ -124,9 +124,8 @@ export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
 
       const statusStyleMap: Record<string, string> = {
         INITIAL: "text-blue-700 border-blue-700 bg-blue-700/10",
-        REVIEWING: "text-yellow-700 border-yellow-700 bg-yellow-700/10",
-        WAITING_FOR_APPROVAL:
-          "text-orange-700 border-orange-700 bg-orange-700/10",
+        PENDING_REVIEW: "text-yellow-700 border-yellow-700 bg-yellow-700/10",
+        PENDING_APPROVAL: "text-orange-700 border-orange-700 bg-orange-700/10",
         APPROVED: "text-green-700 border-green-700 bg-green-700/10",
       };
 
@@ -144,36 +143,22 @@ export const mdlColumns: ColumnDef<GradeChangeRecord>[] = [
   {
     accessorKey: "grade_default_date",
     header: "Default Date",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_default_date")}</div>
-    ),
+    cell: ({ row }) =>
+      frameDateCellRenderer(row.getValue("grade_default_date")),
   },
 
   {
     accessorKey: "grade_resolution_date",
     header: "Resolution Date",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("grade_resolution_date")}</div>
-    ),
+    cell: ({ row }) =>
+      frameDateCellRenderer(row.getValue("grade_resolution_date")),
   },
 
   {
     accessorKey: "grade_grp_default_reason_desc",
     header: "Default Reason",
-    cell: ({ row }) => (
-      <div className="capitalize">
-        {row.getValue("grade_grp_default_reason_desc")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "grade_grp_status_new_desc",
-    header: "Resolution Reason",
-    cell: ({ row }) => (
-      <div className="capitalize">
-        {row.getValue("grade_grp_status_new_desc")}
-      </div>
-    ),
+    cell: ({ row }) =>
+      frameCellRenderer(row.getValue("grade_grp_default_reason_desc")),
   },
 
   {
