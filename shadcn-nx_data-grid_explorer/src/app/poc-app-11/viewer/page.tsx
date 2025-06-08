@@ -52,7 +52,7 @@ export default function Page() {
 
   return (
     <section className="m-4">
-      <h1 className="text-2xl font-bold mb-4">Master Default List</h1>
+      <h1 className="text-2xl font-bold mb-4">VIEWER PAGE</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
         <div className="rounded-md border bg-card text-card-foreground shadow p-6">
@@ -67,21 +67,21 @@ export default function Page() {
         </div>
       </div>
 
-<FrameDataGrid
-  columns={MDL_VIEWER_COLUMNS}
-  data={gridData.data}
-  pageSkip={gridData.skip}
-  pageLimit={gridData.limit}
-  total={gridData.total}
-  onPageChange={(newPage) =>
-    processGridPayload(GRID_ACTION_PAGE_NUMBER_CHANGE, newPage)
-  }
-  onPageLimitChange={(newSize) =>
-    processGridPayload(GRID_ACTION_PAGE_SIZE_CHANGE, newSize)
-  }
-  onRefresh={loadGrid}
-  gridHeader={<GridHeader />}
-/>
+      <FrameDataGrid
+        columns={MDL_VIEWER_COLUMNS}
+        data={gridData.data}
+        pageSkip={gridData.skip}
+        pageLimit={gridData.limit}
+        total={gridData.total}
+        onPageChange={(newPage) =>
+          processGridPayload(GRID_ACTION_PAGE_NUMBER_CHANGE, newPage)
+        }
+        onPageLimitChange={(newSize) =>
+          processGridPayload(GRID_ACTION_PAGE_SIZE_CHANGE, newSize)
+        }
+        onRefresh={loadGrid}
+        gridHeader={<GridHeader />}
+      />
     </section>
   );
 }
