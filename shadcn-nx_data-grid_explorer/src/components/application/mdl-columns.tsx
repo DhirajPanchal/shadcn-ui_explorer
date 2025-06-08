@@ -30,7 +30,7 @@ const frameCellRenderer = (value: string) => {
   const strValue = value !== undefined && value !== null ? value : "";
   return (
     <div
-      className="max-w-[200px] truncate whitespace-nowrap overflow-hidden capitalize"
+      className="max-w-[200px] truncate whitespace-nowrap overflow-hidden capitalize bg-blue-200"
       title={String(strValue)}
     >
       {String(strValue)}
@@ -59,12 +59,12 @@ export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   {
     id: "select",
     header: () => (
-      <div className="flex justify-center">
-        {/* <Checkbox aria-label="Select all" /> */}
+      <div className="flex justify-center ml-2 mr-4">
+        <Checkbox aria-label="Select all" />
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center  ml-2 mr-4">
+      <div className="flex justify-center ml-2 mr-4">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -194,5 +194,13 @@ export const MDL_VIEWER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
 ];
 
 export const MDL_REVIEWER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
+  ...MDL_COMMON_COLUMNS,
+];
+
+export const MDL_APPROVER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
+  ...MDL_COMMON_COLUMNS,
+];
+
+export const MDL_ADMIN_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   ...MDL_COMMON_COLUMNS,
 ];

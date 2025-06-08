@@ -106,6 +106,26 @@ export const REVIEWER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
   ],
 };
 
+export const APPROVER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
+  skip: 0,
+  limit: 10,
+  filter_by_list: [
+    {
+      name: "status",
+      type: "TEXT_IN",
+      list_of_str_value: ["PENDING_APPROVAL"],
+    },
+  ],
+  sort_by_list: [],
+};
+
+export const ADMIN_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
+  skip: 0,
+  limit: 10,
+  filter_by_list: [],
+  sort_by_list: [],
+};
+
 export const GRID_DAFAULT_DATA: DataGridResponse<GradeChangeRecord> = {
   skip: 0,
   limit: 5,

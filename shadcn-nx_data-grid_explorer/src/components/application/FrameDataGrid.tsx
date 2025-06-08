@@ -1,7 +1,6 @@
 "use client";
 
 import { RefreshCw, SettingsIcon } from "lucide-react";
-
 import * as React from "react";
 import {
   ColumnDef,
@@ -15,20 +14,14 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -69,6 +62,10 @@ export function FrameDataGrid<TData, TValue>({
   onRefresh,
   gridHeader,
 }: FrameDataGridProps<TData, TValue>) {
+  const rowHeight = 48;
+  const visibleRowCount = data.length > 10 ? 10 : data.length;
+  const scrollable = data.length > 10;
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -83,7 +80,6 @@ export function FrameDataGrid<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -96,17 +92,12 @@ export function FrameDataGrid<TData, TValue>({
     },
   });
 
-  const onPageSizeChangeHandler = (size: number) => {
-    onPageLimitChange(size);
-  };
-
   return (
     <div className="w-full">
+      {/* Header controls */}
       <div className="flex items-center justify-between mb-2 gap-4">
-        {/* Left: Input */}
         {gridHeader}
 
-        {/* Right: Page size, refresh, settings */}
         <div className="flex items-center gap-2">
           <Select
             value={pageLimit.toString()}
@@ -155,28 +146,38 @@ export function FrameDataGrid<TData, TValue>({
         </div>
       </div>
 
-      <div className="rounded-md border">
+      {/* Table header */}
+      <div className="rounded-t-md border border-b-0">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
+        </Table>
+      </div>
+
+      {/* Scrollable table body */}
+      <div
+        className={`border-x border-b rounded-b-md ${
+          scrollable ? "overflow-y-auto" : ""
+        }`}
+        style={{ height: scrollable ? `${rowHeight * 10}px` : "auto" }}
+      >
+        <Table>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -205,12 +206,12 @@ export function FrameDataGrid<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {/* FOOTER */}
 
+      {/* Footer */}
       <div className="flex items-center justify-between m-1">
         <div className="text-muted-foreground text-sm whitespace-nowrap">
           {table.getFilteredSelectedRowModel().rows.length} of record(s)
-          selected.
+          selected. | {data.length}
         </div>
         <FrameDataGridPagination
           total={total}
