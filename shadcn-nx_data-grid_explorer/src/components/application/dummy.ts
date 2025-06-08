@@ -4,8 +4,7 @@ export const DUMMY_RECORDS: GradeChangeRecord[] = [
   {
     id: 1,
     grade_customer_id: "C1",
-    grade_customer_name:
-      "Customer 1 Customer 1 Customer 1 Customer 1 Customer 1 Customer 1 Customer 1 ",
+    grade_customer_name: "Customer 1 ",
     grade_gedu_legal_name: "Customer 1001",
     grade_default_date: "6/6/2025",
     grade_grp_default_reason_desc: "",

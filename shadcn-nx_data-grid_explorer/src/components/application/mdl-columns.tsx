@@ -26,140 +26,89 @@ import {
 import { GradeChangeRecord } from "./model";
 import { format } from "date-fns";
 
-const frameCellRenderer = (value: string) => {
-  const strValue = value !== undefined && value !== null ? value : "";
-  return (
-    <div
-      className="max-w-[200px] truncate whitespace-nowrap overflow-hidden capitalize bg-blue-200"
-      title={String(strValue)}
-    >
-      {String(strValue)}
-    </div>
-  );
-};
+export function buildTextColumn<T>(
+  accessorKey: keyof T,
+  label: string,
+  size: number = 180
+): ColumnDef<T> {
+  //bg-blue-200
+  const columnBaseClass =
+    "min-w-[140px] max-w-[200px] px-4 py-2 truncate whitespace-nowrap text-sm ";
 
-const frameDateCellRenderer = (value: string) => {
-  if (!value) {
-    return <div className="test-gray-400">-</div>;
-  }
-  const date = new Date(value);
-  const isValid = !isNaN(date.getTime());
-  return (
-    <div>
-      {isValid ? (
-        format(date, "MM/dd/yyyy")
-      ) : (
-        <span className="text-red-400">INVALID</span>
-      )}
-    </div>
-  );
-};
-
-export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
-  {
-    id: "select",
+  return {
+    accessorKey: accessorKey as string,
     header: () => (
+      <div className={`${columnBaseClass} bg-gray-200`}>{label}</div>
+    ),
+    cell: ({ row }) => {
+      const val = row.getValue(accessorKey as string);
+      const strValue =
+        val !== undefined && val !== null && val !== "" ? String(val) : "-";
+      return <div className={`${columnBaseClass} bg-blue-200`}>{strValue}</div>;
+    },
+    size,
+  };
+}
+
+export function buildDateColumn<T>(
+  accessorKey: keyof T,
+  label: string,
+  size: number = 160
+): ColumnDef<T> {
+  return {
+    accessorKey: accessorKey as string,
+    header: () => <div className="px-4 py-2">{label}</div>,
+    cell: ({ row }) => {
+      const val = row.getValue(accessorKey as string);
+      if (!val) return <div className="text-muted-foreground">-</div>;
+
+      const date = new Date(val as string);
+      const formatted = !isNaN(date.getTime())
+        ? format(date, "MM/dd/yyyy")
+        : "INVALID";
+
+      return (
+        <div
+          className="min-w-[120px] max-w-[180px] px-4 py-2 whitespace-nowrap text-sm"
+          title={String(val)}
+        >
+          {formatted}
+        </div>
+      );
+    },
+    size,
+  };
+}
+
+export function buildCheckboxColumn<T>(): ColumnDef<T, unknown> {
+  return {
+    id: "select",
+    header: ({ table }) => (
       <div className="flex justify-center ml-2 mr-4">
-        <Checkbox aria-label="Select all" />
+        <Checkbox
+          aria-label="Select all"
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(val) => table.toggleAllPageRowsSelected(!!val)}
+        />
       </div>
     ),
     cell: ({ row }) => (
       <div className="flex justify-center ml-2 mr-4">
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(val) => row.toggleSelected(!!val)}
           aria-label="Select row"
         />
       </div>
     ),
     enableSorting: false,
     enableHiding: false,
-    size: 10,
-    meta: {
-      className: "w-[200px]", // Increased from 60px → 80px
-    },
-  },
-  {
-    accessorKey: "grade_customer_id",
+    size: 48,
+  };
+}
 
-    header: "Customer ID",
-
-    cell: ({ row }) => frameCellRenderer(row.getValue("grade_customer_id")),
-  },
-
-  {
-    accessorKey: "grade_customer_name",
-    header: "Customer Name",
-    cell: ({ row }) => frameCellRenderer(row.getValue("grade_customer_name")),
-  },
-
-  {
-    accessorKey: "grade_gedu_legal_name",
-    header: "Customer Legal Name",
-    cell: ({ row }) => frameCellRenderer(row.getValue("grade_gedu_legal_name")),
-  },
-
-  {
-    accessorKey: "grade_region",
-    header: "Region",
-    cell: ({ row }) => frameCellRenderer(row.getValue("grade_region")),
-  },
-  {
-    accessorKey: "grade_site",
-    header: "Site",
-    cell: ({ row }) => frameCellRenderer(row.getValue("grade_site")),
-  },
-  {
-    accessorKey: "grade_method",
-    header: "Method",
-    cell: ({ row }) => frameCellRenderer(row.getValue("grade_method")),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-
-      const statusStyleMap: Record<string, string> = {
-        INITIAL: "text-blue-700 border-blue-700 bg-blue-700/10",
-        PENDING_REVIEW: "text-yellow-700 border-yellow-700 bg-yellow-700/10",
-        PENDING_APPROVAL: "text-orange-700 border-orange-700 bg-orange-700/10",
-        APPROVED: "text-green-700 border-green-700 bg-green-700/10",
-      };
-
-      const baseClasses =
-        "inline-flex items-center justify-center min-w-[144px] max-w-full px-3 py-1 text-xs font-semibold rounded-full tracking-wide text-center border";
-
-      return (
-        <span className={`${baseClasses} ${statusStyleMap[status] || ""}`}>
-          {status.replace(/_/g, " ")}
-        </span>
-      );
-    },
-  },
-
-  {
-    accessorKey: "grade_default_date",
-    header: "Default Date",
-    cell: ({ row }) =>
-      frameDateCellRenderer(row.getValue("grade_default_date")),
-  },
-
-  {
-    accessorKey: "grade_resolution_date",
-    header: "Resolution Date",
-    cell: ({ row }) =>
-      frameDateCellRenderer(row.getValue("grade_resolution_date")),
-  },
-
-  {
-    accessorKey: "grade_grp_default_reason_desc",
-    header: "Default Reason",
-    cell: ({ row }) =>
-      frameCellRenderer(row.getValue("grade_grp_default_reason_desc")),
-  },
-
-  {
+export function buildActionColumn<T>(): ColumnDef<T, unknown> {
+  return {
     id: "actions",
     header: () => (
       <div className="flex items-center justify-center gap-1 text-muted-foreground">
@@ -168,25 +117,70 @@ export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
       </div>
     ),
     enableHiding: false,
+    size: 64,
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>View Changes</DropdownMenuItem>
+          <DropdownMenuItem>Update</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  };
+}
+
+export function buildStatusColumn<T>(
+  accessorKey: keyof T,
+  label: string,
+  size: number = 160
+): ColumnDef<T> {
+  const statusStyleMap: Record<string, string> = {
+    INITIAL: "text-blue-700 border-blue-700 bg-blue-700/10",
+    PENDING_REVIEW: "text-yellow-700 border-yellow-700 bg-yellow-700/10",
+    PENDING_APPROVAL: "text-orange-700 border-orange-700 bg-orange-700/10",
+    APPROVED: "text-green-700 border-green-700 bg-green-700/10",
+  };
+
+  const baseClasses =
+    "inline-flex items-center justify-center min-w-[120px] max-w-full px-3 py-1 text-xs font-semibold rounded-full tracking-wide text-center border";
+
+  return {
+    accessorKey: accessorKey as string,
+    header: () => <div className="px-4 py-2">{label}</div>,
     cell: ({ row }) => {
+      const val = row.getValue(accessorKey as string) as string;
+      const style = statusStyleMap[val] || "bg-gray-100 text-gray-600 border";
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Changes</DropdownMenuItem>
-            <DropdownMenuItem>Update</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <span className={`${baseClasses} ${style}`}>
+          {val?.replace(/_/g, " ") || "-"}
+        </span>
       );
     },
-  },
+    size,
+  };
+}
+
+export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
+  buildCheckboxColumn<GradeChangeRecord>(),
+  buildTextColumn("grade_customer_id", "Customer ID"),
+  buildTextColumn("grade_customer_name", "Customer Name"),
+  buildTextColumn("grade_gedu_legal_name", "Customer Legal Name"),
+  buildTextColumn("grade_region", "Region"),
+  buildTextColumn("grade_site", "Site"),
+  buildTextColumn("grade_method", "Method"),
+  buildStatusColumn("status", "Status"),
+  buildDateColumn("grade_default_date", "Default Date"),
+  buildDateColumn("grade_resolution_date", "Resolution Date"),
+  buildTextColumn("grade_grp_default_reason_desc", "Default Reason"),
+  buildActionColumn<GradeChangeRecord>(),
 ];
 
 export const MDL_VIEWER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
