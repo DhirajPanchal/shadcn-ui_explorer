@@ -207,7 +207,7 @@ export function FrameDataGrid<TData, TValue>({
       </div>
       {/* FOOTER */}
 
-      <div className="flex items-center justify-between py-4">
+      <div className="flex items-center justify-between m-1">
         <div className="text-muted-foreground text-sm whitespace-nowrap">
           {table.getFilteredSelectedRowModel().rows.length} of record(s)
           selected.

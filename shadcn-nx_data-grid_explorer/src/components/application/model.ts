@@ -36,11 +36,32 @@ export interface GradeChangeRecord {
   last_modification_user?: string | null;
 }
 
+export interface DashboardSummary {
+  total_records: number;
+  initial_count: number;
+  pending_review_count: number;
+  approved_count: number;
+}
+
+export interface FilterBy {
+  name: string;
+  type: string;
+  list_of_str_value?: string[];
+  list_of_date_value?: string[];
+  str_value?: string;
+  date_value?: string;
+}
+
+export interface SortBy {
+  name: string;
+  is_asc: boolean;
+}
+
 export interface DataGridRequest {
   skip: number;
   limit: number;
-  filter_by_list: [];
-  sort_by_list: [];
+  filter_by_list: FilterBy[];
+  sort_by_list: SortBy[];
 }
 
 export interface DataGridResponse<T> {
@@ -53,8 +74,36 @@ export interface DataGridResponse<T> {
 export const VIEWER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
   skip: 0,
   limit: 5,
-  filter_by_list: [],
+  filter_by_list: [
+    {
+      name: "status",
+      type: "TEXT_IN",
+      list_of_str_value: ["INITIAL"],
+    },
+  ],
   sort_by_list: [],
+};
+
+export const REVIEWER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
+  skip: 0,
+  limit: 10,
+  filter_by_list: [
+    {
+      name: "status",
+      type: "TEXT_IN",
+      list_of_str_value: ["INITIAL", "PENDING_REVIEW"],
+    },
+  ],
+  sort_by_list: [
+    {
+      name: "status",
+      is_asc: false,
+    },
+    {
+      name: "last_modification_date",
+      is_asc: false,
+    },
+  ],
 };
 
 export const GRID_DAFAULT_DATA: DataGridResponse<GradeChangeRecord> = {

@@ -1,6 +1,6 @@
 import { GradeChangeRecord } from "./model";
 
-export const dummyData: GradeChangeRecord[] = [
+export const DUMMY_RECORDS: GradeChangeRecord[] = [
   {
     id: 1,
     grade_customer_id: "C1",
