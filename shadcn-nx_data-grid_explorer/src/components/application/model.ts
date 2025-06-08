@@ -36,6 +36,12 @@ export interface GradeChangeRecord {
   last_modification_user?: string | null;
 }
 
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends unknown, TValue> {
+    label?: string;
+  }
+}
+
 export interface DashboardSummary {
   total_records: number;
   initial_count: number;

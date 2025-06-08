@@ -1,57 +1,39 @@
+// FrameDataGrid.tsx
 "use client";
 
-import { RefreshCw, SettingsIcon } from "lucide-react";
-import * as React from "react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { FrameDataGridPagination } from "./FrameDataGridPagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 
-interface FrameDataGridProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { GradeChangeRecord } from "./model";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, Settings } from "lucide-react";
+import { FrameDataGridPagination } from "./FrameDataGridPagination";
+
+interface FrameDataGridProps {
+  columns: ColumnDef<GradeChangeRecord, any>[];
+  data: GradeChangeRecord[];
   pageSkip: number;
   pageLimit: number;
   total: number;
-  onPageChange: (pageIndex: number) => void;
-  onPageLimitChange: (pageSize: number) => void;
-  onRefresh?: () => void;
-  gridHeader?: React.ReactNode;
+  onPageChange: (skip: number) => void;
+  onPageLimitChange: (limit: number) => void;
+  onRefresh: () => void;
+  gridHeader: React.ReactNode;
 }
 
-export function FrameDataGrid<TData, TValue>({
+export function FrameDataGrid({
   columns,
   data,
   pageSkip,
@@ -61,158 +43,148 @@ export function FrameDataGrid<TData, TValue>({
   onPageLimitChange,
   onRefresh,
   gridHeader,
-}: FrameDataGridProps<TData, TValue>) {
-  const rowHeight = 48;
-  const visibleRowCount = data.length > 10 ? 10 : data.length;
-  const scrollable = data.length > 10;
-
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+}: FrameDataGridProps) {
+  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
     data,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount: Math.ceil(total / pageLimit),
     state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
       rowSelection,
     },
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: true,
   });
 
+  const showScroll = data.length > 10;
+  const selectedRowCount = Object.keys(rowSelection).length;
+
   return (
-    <div className="w-full">
-      {/* Header controls */}
-      <div className="flex items-center justify-between mb-2 gap-4">
-        {gridHeader}
+    <div className="rounded-md border bg-card text-card-foreground shadow">
+      {/* Grid Header: Search + Controls */}
+      <div className="flex flex-wrap items-center justify-between px-2 py-2 gap-2 border-b">
+        <div>{gridHeader}</div>
 
         <div className="flex items-center gap-2">
-          <Select
-            value={pageLimit.toString()}
-            onValueChange={(val) => onPageLimitChange(Number(val))}
+          {/* Page size dropdown */}
+          <select
+            value={pageLimit}
+            onChange={(e) => onPageLimitChange(Number(e.target.value))}
+            className="text-sm border rounded px-2 py-1"
           >
-            <SelectTrigger className="w-[180px] h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[5, 10, 20, 30].map((size) => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size} records per page
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {[5, 10, 20, 50].map((size) => (
+              <option key={size} value={size}>
+                Show {size}
+              </option>
+            ))}
+          </select>
 
-          <Button variant="outline" size="icon" onClick={onRefresh}>
+          {/* Refresh Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onRefresh}
+            title="Refresh"
+          >
             <RefreshCw className="h-4 w-4" />
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <SettingsIcon className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((col) => col.getCanHide())
-                .map((col) => (
-                  <DropdownMenuCheckboxItem
-                    key={col.id}
-                    className="capitalize"
-                    checked={col.getIsVisible()}
-                    onCheckedChange={(value) => col.toggleVisibility(!!value)}
-                  >
-                    {typeof col.columnDef.header === "string"
-                      ? col.columnDef.header
-                      : col.id}
-                  </DropdownMenuCheckboxItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Settings */}
+          <div className="relative group">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" title="Settings">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[220px]">
+                {table
+                  .getAllLeafColumns()
+                  .filter((col) => col.id !== "select" && col.id !== "actions")
+                  .map((col) => (
+                    <DropdownMenuCheckboxItem
+                      key={col.id}
+                      className="capitalize"
+                      checked={col.getIsVisible()}
+                      onCheckedChange={(value) => col.toggleVisibility(!!value)}
+                    >
+                      {col.columnDef.meta?.label ?? col.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
-      {/* Table header */}
-      <div className="rounded-t-md border border-b-0">
-        <Table>
-          <TableHeader>
+      {/* Table */}
+      <div
+        className={`w-full overflow-x-auto ${
+          showScroll ? "overflow-y-auto" : "overflow-y-hidden"
+        }`}
+        style={{
+          maxHeight: showScroll ? `${48 * 10 + 56}px` : undefined,
+        }}
+      >
+        <table className="w-full border-separate border-spacing-0">
+          <thead className="sticky top-0 z-10 bg-white">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <th
+                    key={header.id}
+                    className="text-left px-2 py-1 whitespace-nowrap"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                  </TableHead>
+                  </th>
                 ))}
-              </TableRow>
+              </tr>
             ))}
-          </TableHeader>
-        </Table>
-      </div>
+          </thead>
 
-      {/* Scrollable table body */}
-      <div
-        className={`border-x border-b rounded-b-md ${
-          scrollable ? "overflow-y-auto" : ""
-        }`}
-        style={{ height: scrollable ? `${rowHeight * 10}px` : "auto" }}
-      >
-        <Table>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="border-t">
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="align-top px-2 py-1 whitespace-nowrap"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+
+            {data.length === 0 && (
+              <tr>
+                <td
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="text-center text-muted-foreground py-6"
                 >
-                  No results.
-                </TableCell>
-              </TableRow>
+                  No records found.
+                </td>
+              </tr>
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between m-1">
-        <div className="text-muted-foreground text-sm whitespace-nowrap">
-          {table.getFilteredSelectedRowModel().rows.length} of record(s)
-          selected. | {data.length}
+      {/* Pagination & Selection Info */}
+      <div className="px-4 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t text-sm">
+        <div className="text-muted-foreground whitespace-nowrap">
+          {selectedRowCount} record(s) selected
         </div>
+
         <FrameDataGridPagination
           total={total}
           pageSkip={pageSkip}

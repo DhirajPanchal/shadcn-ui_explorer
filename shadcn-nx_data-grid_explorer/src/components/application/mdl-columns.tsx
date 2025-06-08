@@ -37,14 +37,13 @@ export function buildTextColumn<T>(
 
   return {
     accessorKey: accessorKey as string,
-    header: () => (
-      <div className={`${columnBaseClass} bg-gray-200`}>{label}</div>
-    ),
+    meta: { label: label },
+    header: () => <div className={`${columnBaseClass}`}>{label}</div>,
     cell: ({ row }) => {
       const val = row.getValue(accessorKey as string);
       const strValue =
         val !== undefined && val !== null && val !== "" ? String(val) : "-";
-      return <div className={`${columnBaseClass} bg-blue-200`}>{strValue}</div>;
+      return <div className={`${columnBaseClass}`}>{strValue}</div>;
     },
     size,
   };
@@ -57,6 +56,7 @@ export function buildDateColumn<T>(
 ): ColumnDef<T> {
   return {
     accessorKey: accessorKey as string,
+    meta: { label: label },
     header: () => <div className="px-4 py-2">{label}</div>,
     cell: ({ row }) => {
       const val = row.getValue(accessorKey as string);
@@ -93,7 +93,7 @@ export function buildCheckboxColumn<T>(): ColumnDef<T, unknown> {
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center ml-2 mr-4">
+      <div className="flex justify-center ml-2 mr-4 mt-2">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(val) => row.toggleSelected(!!val)}
@@ -110,6 +110,7 @@ export function buildCheckboxColumn<T>(): ColumnDef<T, unknown> {
 export function buildActionColumn<T>(): ColumnDef<T, unknown> {
   return {
     id: "actions",
+    meta: { label: "Actions" },
     header: () => (
       <div className="flex items-center justify-center gap-1 text-muted-foreground">
         <Menu className="h-4 w-4" />
@@ -137,36 +138,47 @@ export function buildActionColumn<T>(): ColumnDef<T, unknown> {
   };
 }
 
-export function buildStatusColumn<T>(
-  accessorKey: keyof T,
-  label: string,
-  size: number = 160
-): ColumnDef<T> {
-  const statusStyleMap: Record<string, string> = {
-    INITIAL: "text-blue-700 border-blue-700 bg-blue-700/10",
-    PENDING_REVIEW: "text-yellow-700 border-yellow-700 bg-yellow-700/10",
-    PENDING_APPROVAL: "text-orange-700 border-orange-700 bg-orange-700/10",
-    APPROVED: "text-green-700 border-green-700 bg-green-700/10",
-  };
+const statusColorMap: Record<string, string> = {
+  INITIAL: "bg-gray-100 text-gray-800",
+  "PENDING REVIEW": "bg-blue-100 text-blue-800",
+  "PENDING APPROVAL": "bg-yellow-100 text-yellow-800",
+  APPROVED: "bg-green-100 text-green-800",
+  REJECTED: "bg-red-100 text-red-800",
+};
 
-  const baseClasses =
-    "inline-flex items-center justify-center min-w-[120px] max-w-full px-3 py-1 text-xs font-semibold rounded-full tracking-wide text-center border";
-
+export function buildStatusColumn(
+  accessorKey: keyof GradeChangeRecord,
+  label: string
+): ColumnDef<GradeChangeRecord> {
   return {
-    accessorKey: accessorKey as string,
-    header: () => <div className="px-4 py-2">{label}</div>,
-    cell: ({ row }) => {
-      const val = row.getValue(accessorKey as string) as string;
-      const style = statusStyleMap[val] || "bg-gray-100 text-gray-600 border";
+    accessorKey,
+    meta: { label },
+    header: () => <div className="text-left">{label}</div>,
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
       return (
-        <span className={`${baseClasses} ${style}`}>
-          {val?.replace(/_/g, " ") || "-"}
+        <span
+          className={`inline-block min-w-[10rem] px-2 py-0.5 text-center text-xs font-medium rounded-full ${
+            statusColorMap[value] ?? "bg-gray-200 text-gray-800"
+          }`}
+        >
+          {value}
         </span>
       );
     },
-    size,
+    enableSorting: true,
+    enableHiding: true,
   };
 }
+
+// safelist: [
+//   "bg-gray-100", "text-gray-800",
+//   "bg-blue-100", "text-blue-800",
+//   "bg-yellow-100", "text-yellow-800",
+//   "bg-green-100", "text-green-800",
+//   "bg-red-100", "text-red-800",
+//   "bg-gray-200", "text-gray-800",
+// ]
 
 export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   buildCheckboxColumn<GradeChangeRecord>(),
