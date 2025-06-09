@@ -1,0 +1,11 @@
+We have multi column – Sort & Filter with pagination all done at backed (Python APIs), certain other feature in the grid;
+Given that FRAME theming is based on Stadcn (+ Tanstack/react-table), I decided to create this DataGrid using it.
+I will be implementing this DataGrid in MDL.
+
+But after spending time on this grid, I am of the opinion that if we need a featureful enterprise grade grid, Stadcn (+ Tanstack/react-table) is not a very prudent choice, given a lot of things have to be developed from scratch.
+
+
+I happened to check the screens of the FRAME LOAF app, grids there are more suited for Stadcn (+ Tanstack/react-table).
+But for use cases requiring - featureful enterprise grade grid, we may consider using AntDesign or MUI DataGrid.
+
+Meanwhile I will continue implementing Stadcn (+ Tanstack/react-table) based DataGrid in MDL.
