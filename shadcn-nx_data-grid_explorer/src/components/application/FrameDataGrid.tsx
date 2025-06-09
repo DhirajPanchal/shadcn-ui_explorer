@@ -131,6 +131,9 @@ export function FrameDataGrid({
         }}
       >
         <table className="w-full border-separate border-spacing-0">
+
+
+
           <thead className="sticky top-0 z-10 bg-white">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -150,6 +153,9 @@ export function FrameDataGrid({
               </tr>
             ))}
           </thead>
+
+
+          
 
           <tbody>
             {table.getRowModel().rows.map((row) => (

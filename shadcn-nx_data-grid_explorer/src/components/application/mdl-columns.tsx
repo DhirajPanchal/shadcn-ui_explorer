@@ -1,20 +1,13 @@
-"use client";
+// Column Definitions for GradeChangeRecord
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
-  useReactTable,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { ArrowUpDown, MoreHorizontal, FileEdit, Menu, Dot } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
+
+import { DataTableRowActions } from "@/components/application/DataTableRowActions";
+import { format } from "date-fns";
+import { JSX } from "react";
+import { GradeChangeRecord } from "./model";
+import { Checkbox } from "../ui/checkbox";
+import { Menu, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,88 +15,176 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { GradeChangeRecord } from "./model";
-import { format } from "date-fns";
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
+import { DataTableColumnHeader } from "./DataTableColumnHeader";
 
-export function buildTextColumn<T>(
-  accessorKey: keyof T,
-  label: string,
-  size: number = 180
+export const STATUS_ENUM_VALUES = [
+  "INITIAL",
+  "PENDING_REVIEW",
+  "PENDING_APPROVAL",
+  "APPROVED",
+  "REJECTED",
+];
+
+export const renderStatus = (status?: string | null) => {
+  const normalized = (status ?? "").trim().toUpperCase();
+
+  const labelMap: Record<string, string> = {
+    INITIAL: "INITIAL",
+    PENDING_REVIEW: "PENDING REVIEW",
+    PENDING_APPROVAL: "PENDING APPROVAL",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+  };
+
+  const classMap: Record<string, string> = {
+    INITIAL:
+      "bg-gray-200 text-gray-800 border-gray-400 dark:bg-gray-700 dark:text-gray-200",
+    PENDING_REVIEW:
+      "bg-orange-200 text-orange-800 border-orange-400 dark:bg-orange-800 dark:text-orange-200",
+    PENDING_APPROVAL:
+      "bg-purple-200 text-purple-800 border-purple-400 dark:bg-purple-800 dark:text-purple-200",
+    APPROVED:
+      "bg-green-200 text-green-800 border-green-400 dark:bg-green-800 dark:text-green-200",
+    REJECTED:
+      "bg-red-200 text-red-800 border-red-400 dark:bg-red-800 dark:text-red-200",
+  };
+
+  return (
+    <span
+      className={`inline-block text-xs font-semibold px-2 py-1 rounded-full text-center w-[150px] uppercase whitespace-nowrap tracking-wide 
+        border ${
+          classMap[normalized] ??
+          "bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300"
+        }`}
+    >
+      {labelMap[normalized] ?? "-"}
+    </span>
+  );
+};
+
+export function buildStatusColumn<T extends GradeChangeRecord>(
+  id: keyof T,
+  label: string
 ): ColumnDef<T> {
-  //bg-blue-200
-  const columnBaseClass =
-    "min-w-[140px] max-w-[200px] px-4 py-2 truncate whitespace-nowrap text-sm ";
-
   return {
-    accessorKey: accessorKey as string,
-    meta: { label: label },
-    header: () => <div className={`${columnBaseClass}`}>{label}</div>,
-    cell: ({ row }) => {
-      const val = row.getValue(accessorKey as string);
-      const strValue =
-        val !== undefined && val !== null && val !== "" ? String(val) : "-";
-      return <div className={`${columnBaseClass}`}>{strValue}</div>;
+    id: id as string,
+    accessorKey: id as string,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={label} />
+    ),
+    cell: ({ row }) =>
+      renderStatus(row.original[id] as string | null | undefined),
+    enableSorting: true,
+    enableColumnFilter: true,
+    meta: {
+      label,
+      type: "enum",
+      enumValues: STATUS_ENUM_VALUES,
     },
-    size,
   };
 }
 
-export function buildDateColumn<T>(
-  accessorKey: keyof T,
-  label: string,
-  size: number = 160
-): ColumnDef<T> {
+function buildTextColumn<T extends keyof GradeChangeRecord>(
+  key: T,
+  label: string
+): ColumnDef<GradeChangeRecord> {
   return {
-    accessorKey: accessorKey as string,
-    meta: { label: label },
-    header: () => <div className="px-4 py-2">{label}</div>,
-    cell: ({ row }) => {
-      const val = row.getValue(accessorKey as string);
-      if (!val) return <div className="text-muted-foreground">-</div>;
-
-      const date = new Date(val as string);
-      const formatted = !isNaN(date.getTime())
-        ? format(date, "MM/dd/yyyy")
-        : "INVALID";
-
-      return (
-        <div
-          className="min-w-[120px] max-w-[180px] px-4 py-2 whitespace-nowrap text-sm"
-          title={String(val)}
-        >
-          {formatted}
-        </div>
-      );
-    },
-    size,
+    accessorKey: key,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={label} />
+    ), // for sorting
+    cell: ({ row }) => (
+      <div className="truncate max-w-[180px]">{row.getValue(key)}</div>
+    ),
+    meta: { label, type: "text" },
+    enableSorting: true,
+    enableColumnFilter: true,
   };
 }
 
-export function buildCheckboxColumn<T>(): ColumnDef<T, unknown> {
+function buildDateColumn<T extends keyof GradeChangeRecord>(
+  key: T,
+  label: string
+): ColumnDef<GradeChangeRecord> {
+  return {
+    accessorKey: key,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={label} />
+    ), // for sorting
+    cell: ({ row }) => {
+      const value = row.getValue<string>(key);
+      return value ? format(new Date(value), "MM/dd/yyyy") : "-";
+    },
+    meta: { label, type: "date" },
+    enableSorting: true,
+    enableColumnFilter: true,
+  };
+}
+
+function buildReadonlyTextColumn<T extends keyof GradeChangeRecord>(
+  key: T,
+  label: string,
+  type: "text" | "enum" | "date" = "text"
+): ColumnDef<GradeChangeRecord> {
+  return {
+    accessorKey: key,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={label} />
+    ), // sorting disabled
+    cell: ({ row }) => (
+      <div className="truncate max-w-[180px]">{row.getValue(key)}</div>
+    ),
+    meta: { label, type },
+    enableSorting: false,
+    enableColumnFilter: false,
+  };
+}
+
+function buildReadonlyEnumColumn<T extends keyof GradeChangeRecord>(
+  key: T,
+  label: string,
+  enumValues: string[]
+): ColumnDef<GradeChangeRecord> {
+  return {
+    accessorKey: key,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={label} />
+    ), // sorting disabled
+    cell: ({ row }) => renderStatus(row.getValue(key)),
+    meta: { label, type: "enum", enumValues },
+    enableSorting: false,
+    enableColumnFilter: false,
+  };
+}
+
+function buildSelectColumn(): ColumnDef<GradeChangeRecord> {
   return {
     id: "select",
     header: ({ table }) => (
-      <div className="flex justify-center ml-2 mr-4">
-        <Checkbox
-          aria-label="Select all"
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(val) => table.toggleAllPageRowsSelected(!!val)}
-        />
-      </div>
+      <Checkbox
+        checked={table.getIsAllPageRowsSelected()}
+        onCheckedChange={(value: any) =>
+          table.toggleAllPageRowsSelected(!!value)
+        }
+        aria-label="Select all"
+        className="translate-y-[2px]"
+      />
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center ml-2 mr-4 mt-2">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(val) => row.toggleSelected(!!val)}
-          aria-label="Select row"
-        />
-      </div>
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+        className="translate-y-[2px]"
+      />
     ),
     enableSorting: false,
-    enableHiding: false,
-    size: 48,
+    enableColumnFilter: false,
+    size: 40,
+    maxSize: 40,
+    minSize: 40,
   };
 }
 
@@ -138,75 +219,20 @@ export function buildActionColumn<T>(): ColumnDef<T, unknown> {
   };
 }
 
-const statusColorMap: Record<string, string> = {
-  INITIAL: "bg-gray-100 text-gray-800",
-  "PENDING REVIEW": "bg-blue-100 text-blue-800",
-  "PENDING APPROVAL": "bg-yellow-100 text-yellow-800",
-  APPROVED: "bg-green-100 text-green-800",
-  REJECTED: "bg-red-100 text-red-800",
-};
-
-export function buildStatusColumn(
-  accessorKey: keyof GradeChangeRecord,
-  label: string
-): ColumnDef<GradeChangeRecord> {
-  return {
-    accessorKey,
-    meta: { label },
-    header: () => <div className="text-left">{label}</div>,
-    cell: ({ getValue }) => {
-      const value = getValue() as string;
-      return (
-        <span
-          className={`inline-block min-w-[10rem] px-2 py-0.5 text-center text-xs font-medium rounded-full ${
-            statusColorMap[value] ?? "bg-gray-200 text-gray-800"
-          }`}
-        >
-          {value}
-        </span>
-      );
-    },
-    enableSorting: true,
-    enableHiding: true,
-  };
-}
-
-// safelist: [
-//   "bg-gray-100", "text-gray-800",
-//   "bg-blue-100", "text-blue-800",
-//   "bg-yellow-100", "text-yellow-800",
-//   "bg-green-100", "text-green-800",
-//   "bg-red-100", "text-red-800",
-//   "bg-gray-200", "text-gray-800",
-// ]
-
 export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
-  buildCheckboxColumn<GradeChangeRecord>(),
-  buildTextColumn("grade_customer_id", "Customer ID"),
+  buildSelectColumn(),
   buildTextColumn("grade_customer_name", "Customer Name"),
   buildTextColumn("grade_gedu_legal_name", "Customer Legal Name"),
   buildTextColumn("grade_region", "Region"),
-  buildTextColumn("grade_site", "Site"),
-  buildTextColumn("grade_method", "Method"),
   buildStatusColumn("status", "Status"),
   buildDateColumn("grade_default_date", "Default Date"),
   buildDateColumn("grade_resolution_date", "Resolution Date"),
-  buildTextColumn("grade_grp_default_reason_desc", "Default Reason"),
-  buildActionColumn<GradeChangeRecord>(),
+  buildReadonlyTextColumn("grade_customer_id", "Customer ID"),
+  buildReadonlyTextColumn("grade_method", "Method"),
+  buildActionColumn(),
 ];
 
-export const MDL_VIEWER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
-  ...MDL_COMMON_COLUMNS,
-];
-
-export const MDL_REVIEWER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
-  ...MDL_COMMON_COLUMNS,
-];
-
-export const MDL_APPROVER_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
-  ...MDL_COMMON_COLUMNS,
-];
-
-export const MDL_ADMIN_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
-  ...MDL_COMMON_COLUMNS,
-];
+export const MDL_VIEWER_COLUMNS = [...MDL_COMMON_COLUMNS];
+export const MDL_REVIEWER_COLUMNS = [...MDL_COMMON_COLUMNS];
+export const MDL_APPROVER_COLUMNS = [...MDL_COMMON_COLUMNS];
+export const MDL_ADMIN_COLUMNS = [...MDL_COMMON_COLUMNS];
