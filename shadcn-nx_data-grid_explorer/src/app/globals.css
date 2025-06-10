@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@import "react-day-picker/dist/style.css";
+/* @import "react-day-picker/dist/style.css"; */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -120,5 +120,31 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.rdp {
+  @apply w-full text-sm;
+}
+
+.rdp-day {
+  @apply h-8 w-8 p-0 font-normal aria-selected:opacity-100;
+}
+
+.rdp-day_today:not(.rdp-day_selected):not(.rdp-day_disabled) {
+  @apply border border-foreground;
+}
+
+@layer components {
+  .rdp {
+    @apply w-full text-sm;
+  }
+
+  .rdp-day {
+    @apply h-8 w-8 p-0 font-normal aria-selected:opacity-100;
+  }
+
+  .rdp-day_today:not(.rdp-day_selected):not(.rdp-day_disabled) {
+    @apply border border-foreground;
   }
 }
