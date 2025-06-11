@@ -1,108 +1,102 @@
-"use client";
+// MdlPageGridWrapper now receives filter/sort updates from FrameDataGrid
 
-import { useEffect, useState } from "react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-} from "@tanstack/react-table";
-
+import React, { useEffect, useState } from "react";
 import { FrameDataGrid } from "./FrameDataGrid";
-import { GridHeader } from "./GridHeader";
-import {
-  DataGridRequest,
-  DataGridResponse,
-  GradeChangeRecord,
-  GRID_DAFAULT_DATA,
-} from "./model";
-import { loadGradeRecords } from "./external-interface";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
+import { DataGridRequest, GradeChangeRecord } from "./model";
+import { applyFiltersAndSorts } from "./external-interface";
 
-interface MdlPageGridWrapperProps {
+interface Props {
   title: string;
+  columns: ColumnDef<GradeChangeRecord>[];
   initialPayload: DataGridRequest;
-  columns: ColumnDef<GradeChangeRecord, any>[];
 }
 
-export function MdlPageGridWrapper({
-  title,
-  initialPayload,
-  columns,
-}: MdlPageGridWrapperProps) {
-  const [gridPayload, setGridPayload] =
-    useState<DataGridRequest>(initialPayload);
-  const [gridData, setGridData] =
-    useState<DataGridResponse<GradeChangeRecord>>(GRID_DAFAULT_DATA);
+export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
+  
+  const [records, setRecords] = useState<GradeChangeRecord[]>([]);
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [columnFilters, setColumnFilters] = useState<any[]>([]);
+  const [columnSorts, setColumnSorts] = useState<any[]>([]);
 
-  const [searchText, setSearchText] = useState("");
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  function buildPayload(): DataGridRequest {
+    const globalFilters = globalSearch
+      ? ["grade_region", "grade_customer_name", "status"].map((name) => ({
+          name,
+          type: "TEXT_LIKE",
+          str_value: globalSearch,
+        }))
+      : [];
 
-  // Load grid data from API
-  const loadGrid = async () => {
-    const response = await loadGradeRecords(gridPayload);
-    setGridData(response);
-  };
-
-  // Compose and update gridPayload whenever sort or searchText changes
-  useEffect(() => {
-    const composedPayload: DataGridRequest = {
+    return {
       ...initialPayload,
-      skip: gridPayload.skip,
-      limit: gridPayload.limit,
-      sort_by_list: sorting.map((s) => ({
-        name: s.id,
-        is_asc: !s.desc,
-      })),
       filter_by_list: [
-        ...initialPayload.filter_by_list, // status filter
-        ...(searchText.trim()
-          ? [
-              {
-                name: "grade_customer_name",
-                type: "TEXT_CONTAINS",
-                str_value: searchText.trim(),
-              },
-            ]
-          : []),
+        ...(initialPayload.filter_by_list || []),
+        ...globalFilters,
+        ...columnFilters,
       ],
+      sort_by_list: [...(initialPayload.sort_by_list || []), ...columnSorts],
     };
+  }
 
-    setGridPayload(composedPayload);
-  }, [searchText, sorting]);
+  function loadGrid() {
+    const payload = buildPayload();
+    // Mock logic – replace with actual API call
+    const result: GradeChangeRecord[] = applyFiltersAndSorts(payload); // applyFiltersAndSorts(payload);
+    setRecords(result);
+  }
 
   useEffect(() => {
     loadGrid();
-  }, [gridPayload]);
-
-  // Handle page size or page number changes
-  const handlePageChange = (newSkip: number) => {
-    setGridPayload((prev) => ({ ...prev, skip: newSkip }));
-  };
-
-  const handlePageSizeChange = (newLimit: number) => {
-    setGridPayload((prev) => ({ ...prev, skip: 0, limit: newLimit }));
-  };
+  }, []);
 
   return (
-    <section className="mx-4 mt-8">
-      <h1 className="text-2xl font-bold mb-4">{title}</h1>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <div className="flex gap-2">
+          <Input
+            value={globalSearch}
+            placeholder="Search Region / Customer / Status"
+            onChange={(e) => setGlobalSearch(e.target.value)}
+            className="w-[300px]"
+          />
+          <Button onClick={loadGrid}>Go</Button>
+        </div>
+      </div>
 
       <FrameDataGrid
-        columns={columns}
-        data={gridData.data}
-        pageSkip={gridData.skip}
-        pageLimit={gridData.limit}
-        total={gridData.total}
-        onPageChange={handlePageChange}
-        onPageLimitChange={handlePageSizeChange}
-        onRefresh={loadGrid}
-        gridHeader={
-          <GridHeader
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        }
+        columns={columns.map((col) => ({
+          ...col,
+          enableSorting: true,
+          enableColumnFilter: true,
+          meta: col.meta, // preserve column type info
+        }))}
+        data={records}
+        gridHeader={title}
+        onColumnFilterChange={(filters) => {
+          setColumnFilters(filters);
+          loadGrid();
+        }}
+        onColumnSortChange={(sorts) => {
+          setColumnSorts(sorts);
+          loadGrid();
+        }}
+        onRefresh={() => {
+          loadGrid(); // use current payload from useRef
+        }}
+        onClearAll={() => {
+          setColumnFilters([]);
+          setColumnSorts([]);
+          //setPayload(initialPayload);
+          loadGrid();
+        }}
       />
-    </section>
+    </div>
   );
 }
+// function applyFiltersAndSorts(payload: DataGridRequest): GradeChangeRecord[] {
+//   throw new Error("Function not implemented.");
+// }

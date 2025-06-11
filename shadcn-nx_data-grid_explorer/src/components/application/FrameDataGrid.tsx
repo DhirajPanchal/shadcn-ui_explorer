@@ -1,203 +1,149 @@
-// FrameDataGrid.tsx
-"use client";
+// FrameDataGrid: pure grid with external filter/sort event handlers
 
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
+import React, { useEffect } from "react";
 import {
   ColumnDef,
+  ColumnFiltersState,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { GradeChangeRecord } from "./model";
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { RefreshCw, Settings } from "lucide-react";
+import { GradeChangeRecord } from "@/components/application/model";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { FrameDataGridPagination } from "./FrameDataGridPagination";
+import { Button } from "../ui/button";
 
 interface FrameDataGridProps {
-  columns: ColumnDef<GradeChangeRecord, any>[];
   data: GradeChangeRecord[];
-  pageSkip: number;
-  pageLimit: number;
-  total: number;
-  onPageChange: (skip: number) => void;
-  onPageLimitChange: (limit: number) => void;
+  columns: ColumnDef<GradeChangeRecord>[];
+  gridHeader?: React.ReactNode;
+  onColumnFilterChange?: (filters: any[]) => void;
+  onColumnSortChange?: (sorts: any[]) => void;
   onRefresh: () => void;
-  gridHeader: React.ReactNode;
+  onClearAll: () => void;
 }
 
 export function FrameDataGrid({
-  columns,
   data,
-  pageSkip,
-  pageLimit,
-  total,
-  onPageChange,
-  onPageLimitChange,
-  onRefresh,
+  columns,
   gridHeader,
+  onColumnFilterChange,
+  onColumnSortChange,
+  onRefresh,
+  onClearAll,
 }: FrameDataGridProps) {
-  const [rowSelection, setRowSelection] = useState({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
     columns,
+    state: {
+      columnFilters,
+      sorting,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true,
-    pageCount: Math.ceil(total / pageLimit),
-    state: {
-      rowSelection,
-    },
-    onRowSelectionChange: setRowSelection,
-    enableRowSelection: true,
+    manualFiltering: true,
+    manualSorting: true,
   });
 
-  const showScroll = data.length > 10;
-  const selectedRowCount = Object.keys(rowSelection).length;
+  useEffect(() => {
+    if (onColumnFilterChange) {
+      const filters = columnFilters.map((filter) => {
+        const column = columns.find((col) => col.id === filter.id);
+        const value = filter.value as { operator: string; value: string }; // 👈 Add this line
+        const type =
+          column?.meta?.type === "date" ? value.operator : value.operator;
+        const key = column?.meta?.type === "date" ? "date_value" : "str_value";
+        return {
+          name: filter.id,
+          type,
+          [key]: value.value,
+        };
+      });
+
+      onColumnFilterChange(filters);
+    }
+  }, [columnFilters]);
+
+  useEffect(() => {
+    if (onColumnSortChange) {
+      const sorts = sorting.map((s) => ({
+        name: s.id,
+        is_asc: s.desc === false,
+      }));
+      onColumnSortChange(sorts);
+    }
+  }, [sorting]);
 
   return (
-    <div className="rounded-md border bg-card text-card-foreground shadow">
-      {/* Grid Header: Search + Controls */}
-      <div className="flex flex-wrap items-center justify-between px-2 py-2 gap-2 border-b">
-        <div>{gridHeader}</div>
-
-        <div className="flex items-center gap-2">
-          {/* Page size dropdown */}
-          <select
-            value={pageLimit}
-            onChange={(e) => onPageLimitChange(Number(e.target.value))}
-            className="text-sm border rounded px-2 py-1"
-          >
-            {[5, 10, 20, 50].map((size) => (
-              <option key={size} value={size}>
-                Show {size}
-              </option>
-            ))}
-          </select>
-
-          {/* Refresh Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onRefresh}
-            title="Refresh"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-
-          {/* Settings */}
-          <div className="relative group">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" title="Settings">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[220px]">
-                {table
-                  .getAllLeafColumns()
-                  .filter((col) => col.id !== "select" && col.id !== "actions")
-                  .map((col) => (
-                    <DropdownMenuCheckboxItem
-                      key={col.id}
-                      className="capitalize"
-                      checked={col.getIsVisible()}
-                      onCheckedChange={(value) => col.toggleVisibility(!!value)}
-                    >
-                      {col.columnDef.meta?.label ?? col.id}
-                    </DropdownMenuCheckboxItem>
+    <Card className="w-full">
+      {gridHeader && (
+        <CardHeader>
+          <CardTitle>{gridHeader}</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
                   ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
+        {/* <FrameDataGridPagination table={table} /> */}
+      </CardContent>
+
+      <div className="flex gap-2 ml-auto">
+        <Button variant="outline" size="sm" onClick={onRefresh}>
+          Refresh
+        </Button>
+        <Button variant="secondary" size="sm" onClick={onClearAll}>
+          Clear All
+        </Button>
       </div>
-
-      {/* Table */}
-      <div
-        className={`w-full overflow-x-auto ${
-          showScroll ? "overflow-y-auto" : "overflow-y-hidden"
-        }`}
-        style={{
-          maxHeight: showScroll ? `${48 * 10 + 56}px` : undefined,
-        }}
-      >
-        <table className="w-full border-separate border-spacing-0">
-
-
-
-          <thead className="sticky top-0 z-10 bg-white">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="text-left px-2 py-1 whitespace-nowrap"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-
-
-          
-
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-t">
-                {row.getVisibleCells().map((cell) => (
-                  <td
-                    key={cell.id}
-                    className="align-top px-2 py-1 whitespace-nowrap"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-
-            {data.length === 0 && (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center text-muted-foreground py-6"
-                >
-                  No records found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination & Selection Info */}
-      <div className="px-4 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between border-t text-sm">
-        <div className="text-muted-foreground whitespace-nowrap">
-          {selectedRowCount} record(s) selected
-        </div>
-
-        <FrameDataGridPagination
-          total={total}
-          pageSkip={pageSkip}
-          pageLimit={pageLimit}
-          onPageChange={onPageChange}
-        />
-      </div>
-    </div>
+    </Card>
   );
 }

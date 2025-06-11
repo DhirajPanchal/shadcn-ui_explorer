@@ -81,7 +81,7 @@ export interface DataGridResponse<T> {
 
 export const VIEWER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
   skip: 0,
-  limit: 5,
+  limit: 10,
   filter_by_list: [
     {
       name: "status",
