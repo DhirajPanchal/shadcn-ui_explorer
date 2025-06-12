@@ -229,6 +229,12 @@ export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   buildDateColumn("grade_resolution_date", "Resolution Date"),
   buildReadonlyTextColumn("grade_customer_id", "Customer ID"),
   buildReadonlyTextColumn("grade_method", "Method"),
+
+  buildReadonlyTextColumn("field1", "Field 1"),
+  buildReadonlyTextColumn("field2", "Field 2"),
+  buildReadonlyTextColumn("field3", "Field 3"),
+  buildReadonlyTextColumn("field4", "Field 4"),
+  buildReadonlyTextColumn("field5", "Field 5"),
   buildActionColumn(),
 ];
 

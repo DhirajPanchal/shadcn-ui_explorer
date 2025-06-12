@@ -91,6 +91,17 @@ export function FrameDataGrid({
     }
   }, [sorting]);
 
+  const STICKY_LEFT_COLUMNS = 3;
+
+  function getStickyClass(index: number): string {
+    const stickyMap: Record<number, string> = {
+      0: "sticky left-0 z-10 bg-background",
+      1: "sticky left-[40px] z-10 bg-background", // Select column
+      2: "sticky left-[190px] z-10 bg-background", // 40 + 150 + spacing
+    };
+    return stickyMap[index] || "";
+  }
+
   return (
     <Card className="w-full">
       {gridHeader && (
@@ -99,13 +110,17 @@ export function FrameDataGrid({
         </CardHeader>
       )}
       <CardContent>
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      key={header.id}
+                      className={getStickyClass(header.index)}
+                      style={{ minWidth: 120 }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -121,7 +136,11 @@ export function FrameDataGrid({
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={getStickyClass(cell.column.getIndex())}
+                      style={{ minWidth: 120 }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

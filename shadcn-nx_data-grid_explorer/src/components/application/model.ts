@@ -34,6 +34,12 @@ export interface GradeChangeRecord {
   creation_user?: string | null;
   last_modification_date?: string | null;
   last_modification_user?: string | null;
+
+  field1?: string;
+  field2?: string;
+  field3?: string;
+  field4?: string;
+  field5?: string;
 }
 
 declare module "@tanstack/react-table" {
