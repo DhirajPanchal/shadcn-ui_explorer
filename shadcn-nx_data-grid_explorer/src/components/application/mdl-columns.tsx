@@ -91,6 +91,7 @@ function buildTextColumn<T extends keyof GradeChangeRecord>(
   label: string
 ): ColumnDef<GradeChangeRecord> {
   return {
+    id: key as string,
     accessorKey: key,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={label} />
@@ -109,6 +110,7 @@ function buildDateColumn<T extends keyof GradeChangeRecord>(
   label: string
 ): ColumnDef<GradeChangeRecord> {
   return {
+    id: key as string,
     accessorKey: key,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={label} />
@@ -129,6 +131,7 @@ function buildReadonlyTextColumn<T extends keyof GradeChangeRecord>(
   type: "text" | "enum" | "date" = "text"
 ): ColumnDef<GradeChangeRecord> {
   return {
+    id: key as string,
     accessorKey: key,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={label} />
@@ -148,6 +151,7 @@ function buildReadonlyEnumColumn<T extends keyof GradeChangeRecord>(
   enumValues: string[]
 ): ColumnDef<GradeChangeRecord> {
   return {
+    id: key as string,
     accessorKey: key,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title={label} />

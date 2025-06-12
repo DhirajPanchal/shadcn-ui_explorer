@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataGridRequest, GradeChangeRecord } from "./model";
 import { applyFiltersAndSorts } from "./external-interface";
+import { FrozenColumnSettings } from "./FrozenColumnSettings";
 
 interface Props {
   title: string;
@@ -15,7 +16,11 @@ interface Props {
 }
 
 export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
-  
+  const [frozenColumnIds, setFrozenColumnIds] = useState<string[]>([
+    "select",
+    "grade_customer_name",
+  ]);
+
   const [records, setRecords] = useState<GradeChangeRecord[]>([]);
   const [globalSearch, setGlobalSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState<any[]>([]);
@@ -65,6 +70,15 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
           />
           <Button onClick={loadGrid}>Go</Button>
         </div>
+
+        <FrozenColumnSettings
+          allColumns={columns.map((col) => ({
+            id: col.id!,
+            label: col.meta?.label || col.id!,
+          }))}
+          frozenColumnIds={frozenColumnIds}
+          onChange={setFrozenColumnIds}
+        />
       </div>
 
       <FrameDataGrid
@@ -93,6 +107,7 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
           //setPayload(initialPayload);
           loadGrid();
         }}
+        frozenColumnIds={frozenColumnIds}
       />
     </div>
   );

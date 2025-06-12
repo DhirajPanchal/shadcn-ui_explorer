@@ -31,6 +31,7 @@ interface FrameDataGridProps {
   onColumnSortChange?: (sorts: any[]) => void;
   onRefresh: () => void;
   onClearAll: () => void;
+  frozenColumnIds?: string[];
 }
 
 export function FrameDataGrid({
@@ -41,6 +42,7 @@ export function FrameDataGrid({
   onColumnSortChange,
   onRefresh,
   onClearAll,
+  frozenColumnIds = [],
 }: FrameDataGridProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -66,7 +68,7 @@ export function FrameDataGrid({
     if (onColumnFilterChange) {
       const filters = columnFilters.map((filter) => {
         const column = columns.find((col) => col.id === filter.id);
-        const value = filter.value as { operator: string; value: string }; // 👈 Add this line
+        const value = filter.value as { operator: string; value: string };
         const type =
           column?.meta?.type === "date" ? value.operator : value.operator;
         const key = column?.meta?.type === "date" ? "date_value" : "str_value";
@@ -91,15 +93,20 @@ export function FrameDataGrid({
     }
   }, [sorting]);
 
-  const STICKY_LEFT_COLUMNS = 3;
+  function getStickyClass(columnId: string): string {
+    return frozenColumnIds.includes(columnId)
+      ? "sticky z-10 bg-background"
+      : "";
+  }
 
-  function getStickyClass(index: number): string {
-    const stickyMap: Record<number, string> = {
-      0: "sticky left-0 z-10 bg-background",
-      1: "sticky left-[40px] z-10 bg-background", // Select column
-      2: "sticky left-[190px] z-10 bg-background", // 40 + 150 + spacing
-    };
-    return stickyMap[index] || "";
+  // console.log("Frozen Columns:", frozenColumnIds);
+
+  const stickyOffsets: Record<string, number> = {};
+  let cumulativeLeft = 0;
+
+  for (const id of frozenColumnIds) {
+    stickyOffsets[id] = cumulativeLeft;
+    cumulativeLeft += 150; // Replace with actual column width if known
   }
 
   return (
@@ -115,38 +122,66 @@ export function FrameDataGrid({
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className={getStickyClass(header.index)}
-                      style={{ minWidth: 120 }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    // const columnId = header.column.id;
+                    // const stickyIndex = frozenColumnIds.indexOf(columnId);
+                    // const isSticky = stickyIndex !== -1;
+                    // const left = stickyIndex * 150;
+
+                    const columnId = header.column.id;
+                    const isSticky = columnId in stickyOffsets;
+                    const left = stickyOffsets[columnId];
+
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className={isSticky ? "sticky z-10 bg-background" : ""}
+                        style={{
+                          minWidth: 150, // must match actual width
+                          ...(isSticky && { left }),
+                        }}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={getStickyClass(cell.column.getIndex())}
-                      style={{ minWidth: 120 }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    // const columnId = cell.column.id;
+                    // const stickyIndex = frozenColumnIds.indexOf(columnId);
+                    // const isSticky = stickyIndex !== -1;
+                    // const left = stickyIndex * 150;
+
+                    const columnId = cell.column.id;
+                    const isSticky = columnId in stickyOffsets;
+                    const left = stickyOffsets[columnId];
+
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={isSticky ? "sticky z-10 bg-background" : ""}
+                        style={{
+                          minWidth: 150, // must match actual width
+                          ...(isSticky && { left }),
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableBody>
