@@ -88,13 +88,7 @@ export interface DataGridResponse<T> {
 export const VIEWER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
   skip: 0,
   limit: 10,
-  filter_by_list: [
-    {
-      name: "status",
-      type: "TEXT_IN",
-      list_of_str_value: ["INITIAL"],
-    },
-  ],
+  filter_by_list: [],
   sort_by_list: [],
 };
 

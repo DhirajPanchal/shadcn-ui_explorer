@@ -16,7 +16,7 @@ export default function Page() {
         <span className="text-muted-foreground">&gt;</span> Viewer
       </h1>
 
-      <Dashboard />
+      {/* <Dashboard /> */}
 
       <MdlPageGridWrapper
         columns={MDL_VIEWER_COLUMNS}

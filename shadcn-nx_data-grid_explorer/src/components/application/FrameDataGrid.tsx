@@ -99,8 +99,6 @@ export function FrameDataGrid({
       : "";
   }
 
-  // console.log("Frozen Columns:", frozenColumnIds);
-
   const stickyOffsets: Record<string, number> = {};
   let cumulativeLeft = 0;
 
@@ -123,11 +121,6 @@ export function FrameDataGrid({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
-                    // const columnId = header.column.id;
-                    // const stickyIndex = frozenColumnIds.indexOf(columnId);
-                    // const isSticky = stickyIndex !== -1;
-                    // const left = stickyIndex * 150;
-
                     const columnId = header.column.id;
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
@@ -157,11 +150,6 @@ export function FrameDataGrid({
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => {
-                    // const columnId = cell.column.id;
-                    // const stickyIndex = frozenColumnIds.indexOf(columnId);
-                    // const isSticky = stickyIndex !== -1;
-                    // const left = stickyIndex * 150;
-
                     const columnId = cell.column.id;
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
@@ -187,7 +175,6 @@ export function FrameDataGrid({
             </TableBody>
           </Table>
         </div>
-        {/* <FrameDataGridPagination table={table} /> */}
       </CardContent>
 
       <div className="flex gap-2 ml-auto">

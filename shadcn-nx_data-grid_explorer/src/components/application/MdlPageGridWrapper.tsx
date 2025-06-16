@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { DataGridRequest, GradeChangeRecord } from "./model";
-import { applyFiltersAndSorts } from "./external-interface";
+
 import { FrozenColumnSettings } from "./FrozenColumnSettings";
+import { recordListingAPI } from "./external-interface";
 
 interface Props {
   title: string;
@@ -46,15 +47,16 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
     };
   }
 
-  function loadGrid() {
+  function loadGrid(triggerer: string = "") {
+    console.log("*LOAD : " + triggerer);
     const payload = buildPayload();
     // Mock logic – replace with actual API call
-    const result: GradeChangeRecord[] = applyFiltersAndSorts(payload); // applyFiltersAndSorts(payload);
+    const result: GradeChangeRecord[] = recordListingAPI(payload);
     setRecords(result);
   }
 
   useEffect(() => {
-    loadGrid();
+    loadGrid("SELF");
   }, []);
 
   return (
@@ -68,7 +70,7 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
             onChange={(e) => setGlobalSearch(e.target.value)}
             className="w-[300px]"
           />
-          <Button onClick={loadGrid}>Go</Button>
+          <Button onClick={() => loadGrid("GLOBAL_SEARCH")}>Go</Button>
         </div>
 
         <FrozenColumnSettings
@@ -92,26 +94,22 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
         gridHeader={title}
         onColumnFilterChange={(filters) => {
           setColumnFilters(filters);
-          loadGrid();
+          loadGrid("FILTER");
         }}
         onColumnSortChange={(sorts) => {
           setColumnSorts(sorts);
-          loadGrid();
+          loadGrid("SORT");
         }}
         onRefresh={() => {
-          loadGrid(); // use current payload from useRef
+          loadGrid("REFRESH");
         }}
         onClearAll={() => {
           setColumnFilters([]);
           setColumnSorts([]);
-          //setPayload(initialPayload);
-          loadGrid();
+          loadGrid("CLEAR_ALL");
         }}
         frozenColumnIds={frozenColumnIds}
       />
     </div>
   );
 }
-// function applyFiltersAndSorts(payload: DataGridRequest): GradeChangeRecord[] {
-//   throw new Error("Function not implemented.");
-// }
