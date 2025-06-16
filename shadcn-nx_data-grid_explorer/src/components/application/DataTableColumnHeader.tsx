@@ -1,5 +1,5 @@
 import { Column } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Funnel } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,30 +56,27 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <div className="flex items-center space-x-1">
       <span>{title}</span>
+
       {column.getCanSort() && (
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => column.toggleSorting(false)}
+        <div className="flex flex-col justify-center ml-1">
+          <ArrowUp
+            size={16}
+            onClick={() => column.toggleSorting()}
             className={cn(
-              "px-1",
-              column.getIsSorted() === "desc" && "text-blue-600"
+              "cursor-pointer",
+              column.getIsSorted() === "asc" ? "text-blue-600" : "text-gray-300"
             )}
-          >
-            <ArrowDown size={14} />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => column.toggleSorting(true)}
+          />
+          <ArrowDown
+            size={16}
+            onClick={() => column.toggleSorting()}
             className={cn(
-              "px-1",
-              column.getIsSorted() === "asc" && "text-blue-600"
+              "cursor-pointer",
+              column.getIsSorted() === "desc"
+                ? "text-blue-600"
+                : "text-gray-300"
             )}
-          >
-            <ArrowUp size={14} />
-          </Button>
+          />
         </div>
       )}
 
@@ -87,14 +84,14 @@ export function DataTableColumnHeader<TData, TValue>({
         <Popover open={filterOpen} onOpenChange={setFilterOpen}>
           <PopoverTrigger asChild>
             <Button
-              variant={isFiltered ? "secondary" : "outline"}
-              size="sm"
+              variant="ghost"
+              size="icon"
               className={cn(
-                "px-1 h-6 text-xs",
-                isFiltered && "text-blue-600 border-blue-600"
+                "p-1 h-6 w-6",
+                isFiltered ? "text-blue-600" : "text-gray-300"
               )}
             >
-              Filter
+              <Funnel size={14} />
             </Button>
           </PopoverTrigger>
           <PopoverContent
@@ -157,7 +154,7 @@ export function DataTableColumnHeader<TData, TValue>({
                     setFilterOpen(false);
                   }}
                 >
-                  <X className="h-3 w-3" /> Clear
+                  Clear
                 </Button>
                 <Button variant="default" size="sm" onClick={applyFilter}>
                   Go

@@ -19,9 +19,9 @@ export async function loadDashboardSummary(): Promise<DashboardSummary> {
 export function recordListingAPI(
   payload: DataGridRequest
 ): GradeChangeRecord[] {
-  console.log("LISTING --------------------");
+  //console.log("LISTING --------------------");
 
-  console.log(payload);
+  //console.log(payload);
 
   let result = [...DUMMY_RECORDS];
 

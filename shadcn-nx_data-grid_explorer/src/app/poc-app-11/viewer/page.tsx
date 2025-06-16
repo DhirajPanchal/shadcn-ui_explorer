@@ -21,7 +21,7 @@ export default function Page() {
       <MdlPageGridWrapper
         columns={MDL_VIEWER_COLUMNS}
         initialPayload={VIEWER_GRID_DAFAULT_PAYLOAD}
-        title={""}
+        title={"VIEWER-PAGE"}
       />
     </section>
   );

@@ -140,3 +140,41 @@ export const GRID_DAFAULT_DATA: DataGridResponse<GradeChangeRecord> = {
   total: 0,
   data: [],
 };
+
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+
+export interface InputState {
+  skip?: number;
+  limit?: number;
+  filters?: FilterBy[];
+  sorts?: SortBy[];
+  globalSearchText?: string;
+  globalSearchDate?: string;
+  includeHistory?: boolean;
+}
+
+export interface OutputState<T> {
+  skip?: number;
+  limit?: number;
+  total?: number;
+  data?: T[];
+}
+
+export const DEFAULT_INPUT_STATE: InputState = {
+  skip: 0,
+  limit: 10,
+  filters: [],
+  sorts: [],
+  globalSearchText: "",
+  globalSearchDate: "",
+  includeHistory: true,
+};
+
+export const DEFAULT_OUTPUT_STATE: OutputState<GradeChangeRecord> = {
+  skip: 0,
+  limit: 10,
+  total: 15,
+  data: [],
+};

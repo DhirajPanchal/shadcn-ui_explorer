@@ -29,8 +29,8 @@ interface FrameDataGridProps {
   gridHeader?: React.ReactNode;
   onColumnFilterChange?: (filters: any[]) => void;
   onColumnSortChange?: (sorts: any[]) => void;
-  onRefresh: () => void;
-  onClearAll: () => void;
+  onRefresh?: () => void;
+  onClearAll?: () => void;
   frozenColumnIds?: string[];
 }
 
@@ -78,6 +78,8 @@ export function FrameDataGrid({
           [key]: value.value,
         };
       });
+      //console.log("filters :: ");
+      //console.log(filters);
 
       onColumnFilterChange(filters);
     }
@@ -106,6 +108,15 @@ export function FrameDataGrid({
     stickyOffsets[id] = cumulativeLeft;
     cumulativeLeft += 150; // Replace with actual column width if known
   }
+
+  const handleClearAll = () => {
+    console.log("CLEAR ALL inside");
+    setColumnFilters([]);
+    setSorting([]);
+    if (onClearAll) {
+      onClearAll();
+    }
+  };
 
   return (
     <Card className="w-full">
@@ -181,7 +192,7 @@ export function FrameDataGrid({
         <Button variant="outline" size="sm" onClick={onRefresh}>
           Refresh
         </Button>
-        <Button variant="secondary" size="sm" onClick={onClearAll}>
+        <Button variant="secondary" size="sm" onClick={handleClearAll}>
           Clear All
         </Button>
       </div>
