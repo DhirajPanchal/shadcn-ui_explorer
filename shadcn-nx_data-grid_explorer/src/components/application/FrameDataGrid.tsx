@@ -138,46 +138,48 @@ export function FrameDataGrid({
 
   return (
     <Card className="w-full">
-      {gridHeader && (
-        <CardHeader>
-          <CardTitle>{gridHeader}</CardTitle>
-        </CardHeader>
-      )}
-      <CardContent>
-        <div className="rounded-md border overflow-x-auto">
-          <div className="flex justify-end mb-2">
-            <Select
-              value={String(pageLimit)}
-              onValueChange={(value) => onPageLimitChange(Number(value))}
-            >
-              <SelectTrigger className="w-24 h-8">
-                <SelectValue placeholder="Page Size" />
-              </SelectTrigger>
-              <SelectContent>
-                {[10, 20, 50].map((size) => (
-                  <SelectItem key={size} value={String(size)}>
-                    {size}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* {gridHeader} */}
 
-          <Table>
-            <TableHeader>
+      <CardContent className="p-0">
+        {/* Top control (Page Size dropdown) */}
+        <div className="flex justify-end px-4 py-2">
+          <Select
+            value={String(pageLimit)}
+            onValueChange={(value) => onPageLimitChange(Number(value))}
+          >
+            <SelectTrigger className="w-24 h-8">
+              <SelectValue placeholder="Page Size" />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 20, 50].map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size} / page
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Scrollable shared container for both header + body */}
+
+        <div className="relative overflow-auto max-h-[500px]">
+          <table className="w-full border-separate border-spacing-0">
+            <thead className="sticky top-0 z-20 bg-background">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     const columnId = header.column.id;
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
 
                     return (
-                      <TableHead
+                      <th
                         key={header.id}
-                        className={isSticky ? "sticky z-10 bg-background" : ""}
+                        className={`p-2 text-left align-middle font-medium text-sm ${
+                          isSticky ? "sticky z-30 bg-background" : ""
+                        }`}
                         style={{
-                          minWidth: 150, // must match actual width
+                          minWidth: 150,
                           ...(isSticky && { left }),
                         }}
                       >
@@ -187,26 +189,29 @@ export function FrameDataGrid({
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                      </TableHead>
+                      </th>
                     );
                   })}
-                </TableRow>
+                </tr>
               ))}
-            </TableHeader>
-            <TableBody>
+            </thead>
+
+            <tbody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <tr key={row.id} className="border-t">
                   {row.getVisibleCells().map((cell) => {
                     const columnId = cell.column.id;
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
 
                     return (
-                      <TableCell
+                      <td
                         key={cell.id}
-                        className={isSticky ? "sticky z-10 bg-background" : ""}
+                        className={`p-2 align-middle text-sm ${
+                          isSticky ? "sticky z-10 bg-background" : ""
+                        }`}
                         style={{
-                          minWidth: 150, // must match actual width
+                          minWidth: 150,
                           ...(isSticky && { left }),
                         }}
                       >
@@ -214,13 +219,13 @@ export function FrameDataGrid({
                           cell.column.columnDef.cell,
                           cell.getContext()
                         )}
-                      </TableCell>
+                      </td>
                     );
                   })}
-                </TableRow>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
+            </tbody>
+          </table>
         </div>
       </CardContent>
 

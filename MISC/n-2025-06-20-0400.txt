@@ -1,0 +1,56 @@
+<div className="w-full">
+  {/* Static table header */}
+  <div className="overflow-x-auto">
+    <table className="w-full border-separate border-spacing-0">
+      <thead className="sticky top-0 z-30 bg-background">
+        {table.getHeaderGroups().map((headerGroup) => (
+          <tr key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <th
+                key={header.id}
+                className={`text-left px-2 py-4 whitespace-nowrap ${getStickyClass(header.index, true)}`}
+                style={{ minWidth: 100 }}
+              >
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+    </table>
+  </div>
+
+  {/* Scrollable table body */}
+  <div className="overflow-auto max-h-[500px]">
+    <table className="w-full border-separate border-spacing-0">
+      <tbody>
+        {table.getRowModel().rows.map((row) => (
+          <tr key={row.id}>
+            {row.getVisibleCells().map((cell) => (
+              <td
+                key={cell.id}
+                className={`px-2 py-2 whitespace-nowrap ${getStickyClass(cell.column.getIndex(), false)}`}
+                style={{ minWidth: 100 }}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+function getStickyClass(index: number, isHeader: boolean) {
+  const stickyLeftMap: Record<number, string> = {
+    0: "left-0",
+    1: "left-[40px]",
+    2: "left-[100px]",
+    3: "left-[160px]",
+  };
+
+  const left = stickyLeftMap[index] || "";
+  return `sticky ${left} ${isHeader ? "top-0 z-30" : "z-10"} bg-background`;
+}
