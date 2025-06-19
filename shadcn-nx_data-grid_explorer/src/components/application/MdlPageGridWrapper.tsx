@@ -17,6 +17,7 @@ import {
 import { FrozenColumnSettings } from "./FrozenColumnSettings";
 import { recordListingAPI } from "./external-interface";
 import { log } from "console";
+import { DUMMY_RECORDS } from "./dummy";
 
 interface Props {
   title: string;
@@ -48,8 +49,18 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
   const triggerAPI = (triggerer: string = "") => {
     console.log("TRIGGER API < " + triggerer + " > ***");
     console.log(inputState);
-    const result: GradeChangeRecord[] = recordListingAPI(initialPayload);
-    setOutputState({ skip: 0, limit: 10, total: 15, data: result });
+
+    const result: GradeChangeRecord[] = recordListingAPI({
+      ...inputState,
+    });
+    console.log("result LEN : " + result.length);
+
+    setOutputState({
+      skip: inputState.skip,
+      limit: inputState.limit,
+      total: DUMMY_RECORDS.length, // adjust if filtering is added
+      data: result,
+    });
   };
 
   // FILTER
@@ -91,6 +102,14 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
     "grade_customer_name",
   ]);
 
+  const handlePageLimitChange = (newLimit: number) => {
+    setInputState((prev) => ({ ...prev, limit: newLimit, skip: 0 }));
+  };
+
+  const handlePageChange = (newSkip: number) => {
+    setInputState((prev) => ({ ...prev, skip: newSkip }));
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -124,6 +143,11 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
         onRefresh={handleRefresh}
         onClearAll={handleClearAll}
         frozenColumnIds={frozenColumnIds}
+        pageLimit={inputState.limit ?? 10}
+        onPageLimitChange={handlePageLimitChange}
+        pageSkip={inputState.skip ?? 0}
+        pageTotal={outputState.total ?? 100}
+        onPageChange={handlePageChange}
       />
     </div>
   );

@@ -87,7 +87,7 @@ export interface DataGridResponse<T> {
 
 export const VIEWER_GRID_DAFAULT_PAYLOAD: DataGridRequest = {
   skip: 0,
-  limit: 10,
+  limit: 20,
   filter_by_list: [],
   sort_by_list: [],
 };

@@ -4,6 +4,7 @@ import {
   DataGridRequest,
   DataGridResponse,
   GradeChangeRecord,
+  InputState,
 } from "./model";
 
 export async function loadDashboardSummary(): Promise<DashboardSummary> {
@@ -16,7 +17,21 @@ export async function loadDashboardSummary(): Promise<DashboardSummary> {
   };
 }
 
-export function recordListingAPI(
+
+
+export function recordListingAPI(inputState: InputState): GradeChangeRecord[] {
+  const { skip = 0, limit = 10 } = inputState;
+
+  // Total simulated data size (all records before pagination)
+  const fullData: GradeChangeRecord[] = [...DUMMY_RECORDS];
+
+  // Apply slicing (pagination)
+  const paginatedData = fullData.slice(skip, skip + limit);
+
+  return paginatedData;
+}
+
+export function XrecordListingAPI(
   payload: DataGridRequest
 ): GradeChangeRecord[] {
   //console.log("LISTING --------------------");
@@ -68,8 +83,11 @@ export function recordListingAPI(
     });
   });
 
+  console.log(" L1 : " + result.length + " -- " + payload.limit);
+
   // Apply pagination
   const start = payload.skip ?? 0;
   const end = start + (payload.limit ?? 10);
+
   return result.slice(start, end);
 }
