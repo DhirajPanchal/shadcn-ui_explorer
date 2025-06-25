@@ -99,7 +99,7 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
 
   const [frozenColumnIds, setFrozenColumnIds] = useState<string[]>([
     "select",
-    "grade_customer_name",
+    "grade_customer_id",
   ]);
 
   const handlePageLimitChange = (newLimit: number) => {

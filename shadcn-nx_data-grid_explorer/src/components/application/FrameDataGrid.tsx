@@ -123,8 +123,11 @@ export function FrameDataGrid({
   let cumulativeLeft = 0;
 
   for (const id of frozenColumnIds) {
+    let width = 150;
+    if (id === "select") width = 40;
+    else if (id === "grade_customer_id") width = 75;
     stickyOffsets[id] = cumulativeLeft;
-    cumulativeLeft += 150; // Replace with actual column width if known
+    cumulativeLeft += width;
   }
 
   const handleClearAll = () => {
@@ -171,15 +174,24 @@ export function FrameDataGrid({
                     const columnId = header.column.id;
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
-
+                    const columnWidth =
+                      columnId === "select"
+                        ? 40
+                        : columnId === "grade_customer_id"
+                        ? 75
+                        : 150;
                     return (
                       <th
                         key={header.id}
                         className={`p-2 text-left align-middle font-medium text-sm ${
-                          isSticky ? "sticky z-30 bg-background" : ""
+                          isSticky
+                            ? "sticky z-30 bg-background border-b-2 border-blue-600"
+                            : ""
                         }`}
                         style={{
-                          minWidth: 150,
+                          width: columnWidth,
+                          minWidth: columnWidth,
+                          maxWidth: columnWidth,
                           ...(isSticky && { left }),
                         }}
                       >
@@ -203,7 +215,12 @@ export function FrameDataGrid({
                     const columnId = cell.column.id;
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
-
+                    const columnWidth =
+                      columnId === "select"
+                        ? 40
+                        : columnId === "grade_customer_id"
+                        ? 75
+                        : 150;
                     return (
                       <td
                         key={cell.id}
@@ -211,7 +228,9 @@ export function FrameDataGrid({
                           isSticky ? "sticky z-10 bg-background" : ""
                         }`}
                         style={{
-                          minWidth: 150,
+                          width: columnWidth,
+                          minWidth: columnWidth,
+                          maxWidth: columnWidth,
                           ...(isSticky && { left }),
                         }}
                       >

@@ -225,12 +225,12 @@ export function buildActionColumn<T>(): ColumnDef<T, unknown> {
 
 export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   buildSelectColumn(),
-  buildTextColumn("grade_customer_name", "Customer Name"),
+  buildReadonlyTextColumn("grade_customer_id", "Customer ID"),
 
+  buildTextColumn("grade_customer_name", "Customer Name"),
   buildStatusColumn("status", "Status"),
   buildDateColumn("grade_default_date", "Default Date"),
   buildDateColumn("grade_resolution_date", "Resolution Date"),
-  buildReadonlyTextColumn("grade_customer_id", "Customer ID"),
   buildReadonlyTextColumn("grade_method", "Method"),
 
   buildReadonlyTextColumn("field1", "Field 1"),
@@ -238,6 +238,12 @@ export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   buildReadonlyTextColumn("field3", "Field 3"),
   buildReadonlyTextColumn("field4", "Field 4"),
   buildReadonlyTextColumn("field5", "Field 5"),
+  buildReadonlyTextColumn("field6", "Field 6"),
+  buildReadonlyTextColumn("field7", "Field 7"),
+  buildReadonlyTextColumn("field8", "Field 8"),
+  buildReadonlyTextColumn("field9", "Field 9"),
+  buildReadonlyTextColumn("field10", "Field 10"),
+
   buildActionColumn(),
 ];
 
