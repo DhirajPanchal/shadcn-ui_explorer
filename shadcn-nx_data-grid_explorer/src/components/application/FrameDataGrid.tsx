@@ -183,7 +183,7 @@ export function FrameDataGrid({
                     return (
                       <th
                         key={header.id}
-                        className={`p-2 text-left align-middle font-medium text-sm ${
+                        className={`p-x-2 text-left align-middle font-medium text-sm ${
                           isSticky
                             ? "sticky z-30 bg-background border-b-2 border-blue-600"
                             : ""
