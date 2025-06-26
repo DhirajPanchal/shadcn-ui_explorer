@@ -1,0 +1,156 @@
+Step-by-Step Patch – FrameDataGrid.tsx
+🔁 1. Add new state
+At the top of your component, add:
+
+tsx
+Copy
+Edit
+const [columnOrder, setColumnOrder] = React.useState<string[]>(
+  columns.map((col) => col.id!)
+);
+🔁 2. Pass columnOrder to useReactTable
+Update useReactTable call:
+
+tsx
+Copy
+Edit
+const table = useReactTable({
+  data,
+  columns,
+  state: {
+    columnFilters,
+    sorting,
+    columnOrder,
+  },
+  onColumnFiltersChange: setColumnFilters,
+  onSortingChange: setSorting,
+  onColumnOrderChange: setColumnOrder,
+  getCoreRowModel: getCoreRowModel(),
+  getPaginationRowModel: getPaginationRowModel(),
+  manualPagination: true,
+  manualFiltering: true,
+  manualSorting: true,
+  enableColumnOrdering: true, // enable reordering
+});
+🔁 3. Update header rendering to allow drag-drop
+In the thead rendering loop, replace your <th> element with the following:
+
+tsx
+Copy
+Edit
+<th
+  key={header.id}
+  colSpan={header.colSpan}
+  draggable={!frozenColumnIds.includes(columnId)}
+  onDragStart={(e) => {
+    e.dataTransfer.setData("text/plain", columnId);
+  }}
+  onDragOver={(e) => {
+    if (!frozenColumnIds.includes(columnId)) e.preventDefault();
+  }}
+  onDrop={(e) => {
+    const sourceId = e.dataTransfer.getData("text/plain");
+    const targetId = columnId;
+    if (
+      sourceId !== targetId &&
+      !frozenColumnIds.includes(sourceId) &&
+      !frozenColumnIds.includes(targetId)
+    ) {
+      const newOrder = [...columnOrder];
+      const fromIndex = newOrder.indexOf(sourceId);
+      const toIndex = newOrder.indexOf(targetId);
+      newOrder.splice(fromIndex, 1);
+      newOrder.splice(toIndex, 0, sourceId);
+      setColumnOrder(newOrder);
+    }
+  }}
+  className={`p-x-2 text-left align-middle font-medium text-sm ${
+    isSticky ? "sticky z-30 bg-background border-b-2 border-blue-600" : ""
+  }`}
+  style={{
+    width: columnWidth,
+    minWidth: columnWidth,
+    maxWidth: columnWidth,
+    ...(isSticky && { left }),
+  }}
+>
+  {header.isPlaceholder
+    ? null
+    : flexRender(header.column.columnDef.header, header.getContext())}
+</th>
+🧠 Notes
+Frozen columns (select, grade_customer_id, etc.) cannot be dragged.
+
+Non-frozen columns can be dragged to reorder.
+
+columnOrder is managed locally – can be persisted via localStorage or backend as enhancement.
+
+1. Add Reset Button (in FrameDataGrid.tsx)
+Add this inside the <div className="flex items-center justify-between px-4 py-2"> block (near your Refresh/Clear All buttons):
+
+tsx
+Copy
+Edit
+<Button
+  variant="outline"
+  size="sm"
+  onClick={() => setColumnOrder(columns.map((col) => col.id!))}
+>
+  Reset Order
+</Button>
+Update your left button block to:
+
+tsx
+Copy
+Edit
+<div className="flex gap-2">
+  <Button variant="outline" size="sm" onClick={onRefresh}>
+    Refresh
+  </Button>
+  <Button variant="secondary" size="sm" onClick={handleClearAll}>
+    Clear All
+  </Button>
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={() => setColumnOrder(columns.map((col) => col.id!))}
+  >
+    Reset Order
+  </Button>
+</div>
+✅ 2. Persist to LocalStorage (Optional but Recommended)
+Modify the column order state logic:
+
+tsx
+Copy
+Edit
+// Load from localStorage
+const initialOrder = () => {
+  const saved = localStorage.getItem("frameDataGridColumnOrder");
+  const defaultOrder = columns.map((col) => col.id!);
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed) && parsed.every((id) => defaultOrder.includes(id))) {
+      return parsed;
+    }
+  }
+  return defaultOrder;
+};
+
+const [columnOrder, setColumnOrder] = React.useState<string[]>(initialOrder());
+
+// Save on change
+useEffect(() => {
+  localStorage.setItem("frameDataGridColumnOrder", JSON.stringify(columnOrder));
+}, [columnOrder]);
+🔐 Optional: Reset localStorage too on reset
+Update reset handler:
+
+tsx
+Copy
+Edit
+onClick={() => {
+  const defaultOrder = columns.map((col) => col.id!);
+  localStorage.removeItem("frameDataGridColumnOrder");
+  setColumnOrder(defaultOrder);
+}}
