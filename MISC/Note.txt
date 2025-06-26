@@ -1,11 +1,26 @@
-We have multi column – Sort & Filter with pagination all done at backed (Python APIs), certain other feature in the grid;
-Given that FRAME theming is based on Stadcn (+ Tanstack/react-table), I decided to create this DataGrid using it.
-I will be implementing this DataGrid in MDL.
-
-But after spending time on this grid, I am of the opinion that if we need a featureful enterprise grade grid, Stadcn (+ Tanstack/react-table) is not a very prudent choice, given a lot of things have to be developed from scratch.
+MdlPageGridWrapper is th wrapper component which contains FrameDataGrid datagrid.
+FrameDataGrid is based on shadcn + tanstack react table and styled by tailwind css.
+FrameDataGrid has sort, filter, column visiblity & freeze features.
 
 
-I happened to check the screens of the FRAME LOAF app, grids there are more suited for Stadcn (+ Tanstack/react-table).
-But for use cases requiring - featureful enterprise grade grid, we may consider using AntDesign or MUI DataGrid.
+Read and analyze this and suggest how we can implement column shuffle column. This accordance with current features and implementation.
+Also attached screen shot of app.
 
-Meanwhile I will continue implementing Stadcn (+ Tanstack/react-table) based DataGrid in MDL.
+
+------------
+
+Based on options you presented,
+
+
+--------------
+I have attached, screen shot of my app which is based on shadcn + tanstack react table and styled by tailwind css.
+The home page is a datagrid.
+There are 2 screen shot of a json response - which is a log of changes for 1 of the line item record in datagrid.
+data array property in response has log items for that record.
+
+I want you to generate a component which list log items in a vertical line.
+The line will have small circles... each of one log item.
+Log item: (For now just use below 3 propertyies from log item )
+  user_role - User role that made the change.
+  action: The action the user performed (Status). Use a similar capsule used in datagrid (Status column)
+  comments: Comments add by user.
