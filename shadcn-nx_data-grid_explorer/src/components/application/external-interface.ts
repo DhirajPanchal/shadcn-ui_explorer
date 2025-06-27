@@ -1,93 +1,88 @@
+import { GradeChangeRecord, InputState, FilterBy, SortBy } from "./model";
 import { DUMMY_RECORDS } from "./dummy";
-import {
-  DashboardSummary,
-  DataGridRequest,
-  DataGridResponse,
-  GradeChangeRecord,
-  InputState,
-} from "./model";
 
-export async function loadDashboardSummary(): Promise<DashboardSummary> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return {
-    total_records: 125,
-    initial_count: 30,
-    pending_review_count: 45,
-    approved_count: 50,
-  };
-}
-
-
-
-export function recordListingAPI(inputState: InputState): GradeChangeRecord[] {
-  const { skip = 0, limit = 10 } = inputState;
-
-  // Total simulated data size (all records before pagination)
-  const fullData: GradeChangeRecord[] = [...DUMMY_RECORDS];
-
-  // Apply slicing (pagination)
-  const paginatedData = fullData.slice(skip, skip + limit);
-
-  return paginatedData;
-}
-
-export function XrecordListingAPI(
-  payload: DataGridRequest
+/**
+ * Applies filters based on inputState.filters
+ */
+function applyFilters(
+  data: GradeChangeRecord[],
+  filters: FilterBy[]
 ): GradeChangeRecord[] {
-  //console.log("LISTING --------------------");
+  return data.filter((item) => {
+    return filters.every((filter) => {
+      const value = (item as any)[filter.name];
+      if (value === undefined || value === null) return false;
 
-  //console.log(payload);
+      switch (filter.type) {
+        case "TEXT_LIKE":
+          const needle = (filter.str_value ?? "").toString().toLowerCase();
+          return value?.toString().toLowerCase().includes(needle);
+        case "EQUAL":
+          return value === filter.str_value;
+
+        case "NUMBER_EQ":
+          if (filter.list_of_str_value?.length) {
+            return filter.list_of_str_value.includes(value.toString());
+          }
+          if (filter.str_value) {
+            return Number(value) === Number(filter.str_value);
+          }
+          return false;
+
+        case "DATE_GE":
+          return new Date(value) >= new Date(filter.date_value ?? "");
+        case "DATE_LE":
+          return new Date(value) <= new Date(filter.date_value ?? "");
+        default:
+          return true;
+      }
+    });
+  });
+}
+
+/**
+ * Applies sorting based on inputState.sorts
+ */
+function applySorting(
+  data: GradeChangeRecord[],
+  sorts: SortBy[]
+): GradeChangeRecord[] {
+  return [...data].sort((a, b) => {
+    for (const { name, is_asc } of sorts) {
+      const aVal = (a as any)[name];
+      const bVal = (b as any)[name];
+
+      if (aVal == null || bVal == null) continue;
+      if (aVal < bVal) return is_asc ? -1 : 1;
+      if (aVal > bVal) return is_asc ? 1 : -1;
+    }
+    return 0;
+  });
+}
+
+/**
+ * Applies pagination
+ */
+function applyPagination(
+  data: GradeChangeRecord[],
+  skip: number,
+  limit: number
+): GradeChangeRecord[] {
+  return data.slice(skip, skip + limit);
+}
+
+/**
+ * Main mock API method
+ * Accepts inputState: InputState and returns filtered + sorted + paginated data
+ */
+export function recordListingAPI(inputState: InputState): GradeChangeRecord[] {
+  const { skip = 0, limit = 10, filters = [], sorts = [] } = inputState;
 
   let result = [...DUMMY_RECORDS];
 
-  // Apply filters
-  payload.filter_by_list?.forEach((filter) => {
-    const { name, type } = filter;
+  result = applyFilters(result, filters);
+  result = applySorting(result, sorts);
+  result = applyPagination(result, skip, limit);
 
-    result = result.filter((record) => {
-      const fieldValue = record[name as keyof GradeChangeRecord];
-
-      if (type === "TEXT_LIKE") {
-        const val = (filter.str_value ?? "").toLowerCase();
-        return (fieldValue as string)?.toLowerCase().includes(val);
-      }
-
-      if (type === "DATE_GE") {
-        const dateVal = filter.date_value ?? "";
-        return new Date(fieldValue as string) >= new Date(dateVal);
-      }
-
-      if (type === "DATE_LE") {
-        const dateVal = filter.date_value ?? "";
-        return new Date(fieldValue as string) <= new Date(dateVal);
-      }
-
-      return true;
-    });
-  });
-
-  // Apply sorts
-  payload.sort_by_list?.forEach((sort) => {
-    const { name, is_asc } = sort;
-
-    result.sort((a, b) => {
-      const valA = a[name as keyof GradeChangeRecord];
-      const valB = b[name as keyof GradeChangeRecord];
-
-      if (valA == null) return 1;
-      if (valB == null) return -1;
-
-      if (valA > valB) return is_asc ? 1 : -1;
-      if (valA < valB) return is_asc ? -1 : 1;
-      return 0;
-    });
-  });
-
-  console.log(" L1 : " + result.length + " -- " + payload.limit);
-
-  // Apply pagination
-  const start = payload.skip ?? 0;
-  const end = start + (payload.limit ?? 10);
-
-  return result.slice(start, end);
+  return result;
 }

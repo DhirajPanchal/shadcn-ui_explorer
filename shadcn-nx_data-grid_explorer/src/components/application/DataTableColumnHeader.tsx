@@ -36,6 +36,8 @@ export function DataTableColumnHeader<TData, TValue>({
   const enumValueRef = useRef("");
   const dateValueRef = useRef<Date | undefined>(undefined);
 
+  const numberValueRef = useRef("");
+
   const applyFilter = () => {
     if (columnType === "text") {
       column.setFilterValue({
@@ -47,9 +49,22 @@ export function DataTableColumnHeader<TData, TValue>({
     } else if (columnType === "date" && dateValueRef.current) {
       const formatted = format(dateValueRef.current, "yyyy-MM-dd");
       column.setFilterValue({ operator: dateOperator, value: formatted });
+    } else if (columnType === "number") {
+      const val = numberValueRef.current;
+      console.log("NUMBER VALUE : " + val);
+
+      if (val !== "") {
+        column.setFilterValue({
+          operator: "NUMBER_EQ",
+          value: val,
+        });
+      }
     }
+
     setFilterOpen(false);
   };
+
+  console.log("Column after setFilterValue:", column.getFilterValue());
 
   const isFiltered = column.getFilterValue() !== undefined;
 
@@ -143,6 +158,16 @@ export function DataTableColumnHeader<TData, TValue>({
                     className="rounded-md"
                   />
                 </div>
+              )}
+              {columnType === "number" && (
+                <Input
+                  type="number"
+                  id={`filter-input-${column.id}`}
+                  className="h-8"
+                  placeholder="Filter..."
+                  defaultValue=""
+                  onChange={(e) => (numberValueRef.current = e.target.value)}
+                />
               )}
 
               <div className="flex justify-end space-x-2 pt-2">

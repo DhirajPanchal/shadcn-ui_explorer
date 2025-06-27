@@ -74,8 +74,8 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
 
   // SORT
   const handleSortChange = (sorts: any[]) => {
-    console.log("SORT : ");
-    console.log(sorts);
+    //console.log("SORT : ");
+    //console.log(sorts);
     setInputState((existing) => {
       return { ...existing, sorts: sorts };
     });
@@ -99,7 +99,7 @@ export function MdlPageGridWrapper({ title, columns, initialPayload }: Props) {
 
   const [frozenColumnIds, setFrozenColumnIds] = useState<string[]>([
     "select",
-    "grade_customer_id",
+    "id",
   ]);
 
   const handlePageLimitChange = (newLimit: number) => {

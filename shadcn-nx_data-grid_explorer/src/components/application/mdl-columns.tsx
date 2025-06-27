@@ -63,6 +63,23 @@ export const renderStatus = (status?: string | null) => {
     </span>
   );
 };
+function buildNumberColumn<T extends keyof GradeChangeRecord>(
+  key: T,
+  label: string
+): ColumnDef<GradeChangeRecord> {
+  return {
+    id: key as string,
+    accessorKey: key,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title={label} />
+    ),
+    cell: ({ row }) => <div className="text-right">{row.getValue(key)}</div>,
+    meta: { label, type: "number" },
+    enableSorting: true,
+    enableColumnFilter: true,
+    filterFn: () => true, // <-- Add this line
+  };
+}
 
 export function buildStatusColumn<T extends GradeChangeRecord>(
   id: keyof T,
@@ -225,8 +242,9 @@ export function buildActionColumn<T>(): ColumnDef<T, unknown> {
 
 export const MDL_COMMON_COLUMNS: ColumnDef<GradeChangeRecord>[] = [
   buildSelectColumn(),
-  buildReadonlyTextColumn("grade_customer_id", "Customer ID"),
+  buildNumberColumn("id", "ID"),
 
+  buildReadonlyTextColumn("grade_customer_id", "Customer ID"),
   buildTextColumn("grade_customer_name", "Customer Name"),
   buildStatusColumn("status", "Status"),
   buildDateColumn("grade_default_date", "Default Date"),

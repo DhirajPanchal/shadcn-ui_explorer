@@ -85,19 +85,54 @@ export function FrameDataGrid({
   });
 
   useEffect(() => {
+    console.log("----- Point 0");
     if (onColumnFilterChange) {
+      console.log("----- Point 1");
+
+      console.log("Raw columnFilters:");
+      console.log(columnFilters);
+
+      columnFilters.forEach((filter) => {
+        const column = columns.find((col) => col.id === filter.id);
+        console.log("* Column:", filter.id, "Meta:", column?.meta);
+      });
+
       const filters = columnFilters.map((filter) => {
+        console.log("----- Point 2");
+
         const column = columns.find((col) => col.id === filter.id);
         const value = filter.value as { operator: string; value: string };
         const type =
           column?.meta?.type === "date" ? value.operator : value.operator;
-        const key = column?.meta?.type === "date" ? "date_value" : "str_value";
-        return {
+
+        let key = "str_value"; // default
+
+        if (column?.meta?.type === "date") {
+          key = "date_value";
+        } else if (column?.meta?.type === "number") {
+          key = "list_of_str_value"; // this is expected by your API layer
+        }
+
+        const filterObj: any = {
           name: filter.id,
           type,
-          [key]: value.value,
         };
+
+        console.log(column);
+        console.log(value);
+        console.log(type);
+        console.log(key);
+        console.log(filterObj);
+
+        filterObj[key] = [value.value]; // always wrap in array
+
+        console.log(filterObj);
+
+        return filterObj;
       });
+
+      console.log(" filters info ");
+      console.log(filters);
 
       onColumnFilterChange(filters);
     }
@@ -125,7 +160,7 @@ export function FrameDataGrid({
   for (const id of frozenColumnIds) {
     let width = 150;
     if (id === "select") width = 40;
-    else if (id === "grade_customer_id") width = 75;
+    else if (id === "id") width = 75;
     stickyOffsets[id] = cumulativeLeft;
     cumulativeLeft += width;
   }
@@ -175,17 +210,13 @@ export function FrameDataGrid({
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
                     const columnWidth =
-                      columnId === "select"
-                        ? 40
-                        : columnId === "grade_customer_id"
-                        ? 75
-                        : 150;
+                      columnId === "select" ? 40 : columnId === "id" ? 75 : 150;
                     return (
                       <th
                         key={header.id}
-                        className={`p-x-2 text-left align-middle font-medium text-sm ${
+                        className={`p-x-2 bg-gray-200 text-left align-middle font-medium text-sm ${
                           isSticky
-                            ? "sticky z-30 bg-background border-b-2 border-blue-600"
+                            ? "sticky z-30 bg-background border-b-4 border-blue-600"
                             : ""
                         }`}
                         style={{
@@ -216,11 +247,7 @@ export function FrameDataGrid({
                     const isSticky = columnId in stickyOffsets;
                     const left = stickyOffsets[columnId];
                     const columnWidth =
-                      columnId === "select"
-                        ? 40
-                        : columnId === "grade_customer_id"
-                        ? 75
-                        : 150;
+                      columnId === "select" ? 40 : columnId === "id" ? 75 : 150;
                     return (
                       <td
                         key={cell.id}

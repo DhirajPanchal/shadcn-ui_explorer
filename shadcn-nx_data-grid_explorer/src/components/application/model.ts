@@ -51,7 +51,7 @@ export interface GradeChangeRecord {
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends unknown, TValue> {
     label?: string;
-    type?: "text" | "enum" | "date";
+    type?: "text" | "enum" | "date" | "number";
     enumValues?: string[];
   }
 }
