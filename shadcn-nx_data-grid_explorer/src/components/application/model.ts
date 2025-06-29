@@ -184,3 +184,18 @@ export const DEFAULT_OUTPUT_STATE: OutputState<GradeChangeRecord> = {
   total: 15,
   data: [],
 };
+
+export interface LogItem {
+  change_record_id: number;
+  action: string;
+  user_role: string;
+  comments?: string;
+  creation_date?: string;
+  changes?: LogItemChange[];
+}
+
+export interface LogItemChange {
+  field_name?: string;
+  new_value?: string;
+  old_value?: string;
+}
