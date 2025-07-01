@@ -30,15 +30,29 @@ import {
 const initialUsers: MdlUser[] = [
   {
     id: 1,
-    name: "User 1",
+    name: "Alex Walter",
+    role: "REVIEWER",
+    creation_date: new Date().toISOString(),
+    creation_user: "admin",
+    last_modification_date: new Date().toISOString(),
+    last_modification_user: "admin",
+    region: "Asis Pecific",
+    site: "HongKong",
+    ad_user_id: 10001,
+    image_url: "male.png",
+  },
+  {
+    id: 2,
+    name: "Mark Spencer",
     role: "VIEWER",
     creation_date: new Date().toISOString(),
     creation_user: "admin",
     last_modification_date: new Date().toISOString(),
     last_modification_user: "admin",
-    region: "US-East",
-    site: "SiteA",
-    ad_id: 10001,
+    region: "Asis Pecific",
+    site: "HongKong",
+    ad_user_id: 10002,
+    image_url: "female.png",
   },
 ];
 
@@ -51,12 +65,18 @@ export default function MdlUserGrid() {
     role: "VIEWER",
     region: "",
     site: "",
-    ad_id: "",
+    ad_user_id: "",
   });
 
   function openAddDialog() {
     setEditingUser(null);
-    setFormState({ name: "", role: "VIEWER", region: "", site: "", ad_id: "" });
+    setFormState({
+      name: "",
+      role: "VIEWER",
+      region: "",
+      site: "",
+      ad_user_id: "",
+    });
     setOpen(true);
   }
 
@@ -67,7 +87,7 @@ export default function MdlUserGrid() {
       role: user.role,
       region: user.region,
       site: user.site,
-      ad_id: String(user.ad_id),
+      ad_user_id: String(user.ad_user_id),
     });
     setOpen(true);
   }
@@ -86,7 +106,7 @@ export default function MdlUserGrid() {
                 role: formState.role as "VIEWER" | "REVIEWER" | "APPROVER",
                 region: formState.region,
                 site: formState.site,
-                ad_id: Number(formState.ad_id),
+                ad_user_id: Number(formState.ad_user_id),
                 last_modification_date: now,
                 last_modification_user: "admin",
               }
@@ -103,7 +123,7 @@ export default function MdlUserGrid() {
         role: formState.role as any,
         region: formState.region,
         site: formState.site,
-        ad_id: Number(formState.ad_id),
+        ad_user_id: Number(formState.ad_user_id),
         creation_date: now,
         creation_user: "admin",
         last_modification_date: now,
@@ -189,9 +209,9 @@ export default function MdlUserGrid() {
             <div className="grid gap-2">
               <Label>AD User ID</Label>
               <Input
-                value={formState.ad_id}
+                value={formState.ad_user_id}
                 onChange={(e) =>
-                  setFormState({ ...formState, ad_id: e.target.value })
+                  setFormState({ ...formState, ad_user_id: e.target.value })
                 }
               />
             </div>

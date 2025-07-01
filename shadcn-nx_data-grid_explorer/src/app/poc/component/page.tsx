@@ -1,6 +1,7 @@
 "use client";
 
 import { DateInputField } from "@/components/controls/DateInputField";
+import { DG01 } from "@/components/dg/DB01";
 import Link from "next/link";
 
 export default function Page() {
@@ -13,7 +14,9 @@ export default function Page() {
         <span className="text-muted-foreground">&gt;</span> Component
       </h1>
 
-      <DateInputField />
+      {/* <DateInputField /> */}
+
+      <DG01 />
     </section>
   );
 }

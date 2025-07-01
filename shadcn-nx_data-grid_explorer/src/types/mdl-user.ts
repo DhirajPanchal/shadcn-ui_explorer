@@ -8,5 +8,6 @@ export interface MdlUser {
   last_modification_user: string;
   region: string;
   site: string;
-  ad_id: number;
+  ad_user_id: number;
+  image_url?: string;
 }

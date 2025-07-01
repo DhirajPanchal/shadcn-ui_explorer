@@ -23,19 +23,22 @@ export function DateInputField() {
     const err = validateDate(date);
     setError(err);
   };
-
   return (
     <div className="space-y-1">
       <Label htmlFor="dateInput">Date</Label>
-      <Input
-        id="dateInput"
-        placeholder="YYYY or YYYY-MM or YYYY-MM-DD"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        onBlur={handleBlur}
-        className={error ? "border-red-500" : ""}
-      />
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      <div className="flex items-center space-x-2">
+        <Input
+          id="dateInput"
+          placeholder="YYYY or YYYY-MM or YYYY-MM-DD"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          onBlur={handleBlur}
+          className={error ? "border-red-500" : ""}
+        />
+        {error && (
+          <p className="text-sm text-red-500 whitespace-nowrap">{error}</p>
+        )}
+      </div>
     </div>
   );
 }

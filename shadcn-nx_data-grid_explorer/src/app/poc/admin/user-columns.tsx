@@ -5,12 +5,10 @@ export const mdlUserColumns: ColumnDef<MdlUser>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.name}</div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
   },
   {
-    accessorKey: "ad_id",
+    accessorKey: "ad_user_id",
     header: "AD User ID",
   },
   {

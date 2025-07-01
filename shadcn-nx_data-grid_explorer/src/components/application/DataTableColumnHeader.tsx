@@ -64,7 +64,7 @@ export function DataTableColumnHeader<TData, TValue>({
     setFilterOpen(false);
   };
 
-  console.log("Column after setFilterValue:", column.getFilterValue());
+  //console.log("Column after setFilterValue:", column.getFilterValue());
 
   const isFiltered = column.getFilterValue() !== undefined;
 
