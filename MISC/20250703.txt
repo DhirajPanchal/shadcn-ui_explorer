@@ -1,0 +1,38 @@
+import axios, { AxiosInstance } from "axios";
+
+function createAuthorizedAxiosInstance(): AxiosInstance {
+  const conf = JSON.parse(localStorage.getItem("persist:frame") || "{}");
+
+  const authRaw = conf.auth || "{}";
+  const authParsed = JSON.parse(authRaw);
+
+  const dspToken = authParsed?.dsp?.dspToken?.tokenId || "";
+
+  // Base64 encode the raw JSON string
+  const base64JwtPayload = btoa(authRaw); // btoa expects a plain ASCII string
+
+  const instance = axios.create({
+    baseURL: BASE_URL,
+    headers: {
+      Authorization: `Bearer ${dspToken}`,
+      "X-JWT-Payload": base64JwtPayload,
+      // Optional custom headers if needed:
+      // "X-Frame-App": "MDL",
+    },
+  });
+
+  return instance;
+}
+
+
+export async function loadDashboardSummary(): Promise<DashboardSummary> {
+  const axiosInstance = createAuthorizedAxiosInstance();
+
+  const response = await axiosInstance.get("/records/dashboard-metrics");
+  const data: DashboardSummary = response.data;
+
+  return data;
+}
+
+JSON contains non-ASCII characters (like names in other languages)
+const base64JwtPayload = btoa(unescape(encodeURIComponent(authRaw)));
