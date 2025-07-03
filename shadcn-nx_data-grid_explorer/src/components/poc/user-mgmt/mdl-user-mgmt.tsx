@@ -6,7 +6,8 @@ import MdlUserCardGrid from "./mdl-user-card-grid";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import MdlUserForm from "./mdl-user-form";
+import MdlAddUserForm from "./mdl-add-user-form";
+import MdlEditUserForm from "./mdl-edit-user-form";
 import ConfirmDeleteModal from "./confirm-delete-modal";
 import { DEFAULT_MDL_USER } from "./dummy";
 import RoleToggleButton from "./RoleToggleButton";
@@ -111,12 +112,31 @@ export default function MdlUserMgmt() {
         }}
       />
 
-      <MdlUserForm
-        open={showForm}
-        user={formUser}
+      <MdlAddUserForm
+        open={showForm && !formUser}
         onClose={() => setShowForm(false)}
-        onSave={handleSave}
+        onSave={(user: MdlUser) => {
+          const id = users.length + 1;
+          setUsers((prev) => [...prev, { ...user, id }]);
+          toast.success("User added");
+          setShowForm(false);
+        }}
       />
+
+      {formUser && (
+        <MdlEditUserForm
+          open={showForm}
+          user={formUser}
+          onClose={() => setShowForm(false)}
+          onSave={(user: MdlUser) => {
+            setUsers((prev) =>
+              prev.map((u) => (u.id === user.id ? { ...u, ...user } : u))
+            );
+            toast.success("User updated");
+            setShowForm(false);
+          }}
+        />
+      )}
 
       <ConfirmDeleteModal
         user={userToDelete}
