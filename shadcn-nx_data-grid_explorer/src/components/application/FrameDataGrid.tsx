@@ -66,6 +66,7 @@ export function FrameDataGrid({
     []
   );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
@@ -73,6 +74,7 @@ export function FrameDataGrid({
     state: {
       columnFilters,
       sorting,
+      rowSelection,
     },
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
@@ -82,7 +84,12 @@ export function FrameDataGrid({
     pageCount: Math.ceil(pageTotal / pageLimit),
     manualFiltering: true,
     manualSorting: true,
+    onRowSelectionChange: setRowSelection,
   });
+
+  useEffect(() => {
+    setRowSelection({});
+  }, [data]);
 
   useEffect(() => {
     console.log("----- Point 0");
