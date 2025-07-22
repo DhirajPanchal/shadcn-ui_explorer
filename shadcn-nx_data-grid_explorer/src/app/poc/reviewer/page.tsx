@@ -1,6 +1,9 @@
 "use client";
 
 import { LogTimeline } from "@/components/application/LogTimeline";
+import { LogTimeline4 } from "@/components/application/LogTimeline_Final";
+import { LogTimeline3 } from "@/components/application/LogTimeline_Fixed";
+import { LogTimeline2 } from "@/components/application/LogTimeline_Updated";
 import Link from "next/link";
 
 export default function Page() {
@@ -13,7 +16,7 @@ export default function Page() {
         <span className="text-muted-foreground">&gt;</span> Reviewer
       </h1>
 
-      <LogTimeline />
+      <LogTimeline4 />
     </section>
   );
 }
