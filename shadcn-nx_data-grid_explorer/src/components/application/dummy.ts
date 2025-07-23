@@ -301,5 +301,45 @@ export const DATA_LOGITEMS: LogItem[] = [
     comments: "",
     creation_date: "2025-06-24T14:58:33.815517",
   },
+  {
+    change_record_id: 1,
+    user_role: "VIEWER",
+    action: "SUBMIT_FOR_REVIEW",
+    comments: "Enough infomation for review",
+    creation_date: "2025-06-24T14:58:33.815517",
+  },
+  {
+    change_record_id: 2,
+    user_role: "REVIEWER",
+    action: "MODIFY",
+    comments: "",
+    creation_date: "2025-06-24T14:58:33.815517",
+    changes: [
+      {
+        field_name: "Default Date",
+        old_value: "2025-04-24T14:58:33.815517",
+        new_value: "2025-07-24T14:58:33.815517",
+      },
+      {
+        field_name: "Default Reason",
+        old_value: "3 consecutive repayment default",
+        new_value: "Tenure Restructured",
+      },
+    ],
+  },
+  {
+    change_record_id: 3,
+    user_role: "REVIEWER",
+    action: "SUBMIT_FOR_APPROVAL",
+    comments: "Based on new findings, ready for approval",
+    creation_date: "2025-06-24T14:58:33.815517",
+  },
+  {
+    change_record_id: 4,
+    user_role: "APPROVER",
+    action: "APPROVE",
+    comments: "",
+    creation_date: "2025-06-24T14:58:33.815517",
+  },
 ];
 //Approved based on recent changes
